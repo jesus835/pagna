@@ -469,9 +469,7 @@
        left: 0;
        width: 100%;
        height: 100%;
-       background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(17,17,17,0.8)), url('images/destacado1.jpg');
-       background-size: cover;
-       background-position: center;
+       background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(17,17,17,0.9));
        color: white;
        z-index: 5;
        padding: 60px;
@@ -492,6 +490,21 @@
      .detail-content {
        max-width: 800px;
        animation: fadeIn 0.4s ease;
+     }
+     
+     .detail-content h1 {
+       font-size: 3.5em;
+       margin-bottom: 20px;
+       color: white;
+       text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+     }
+     
+     .detail-content .description {
+       font-size: 1.3em;
+       margin-bottom: 25px;
+       color: #ccc;
+       max-width: 600px;
+       line-height: 1.5;
      }
      
      @keyframes fadeIn {
@@ -672,17 +685,17 @@
  
     <!-- Overlay de detalles dinámico -->
     <div id="detail-overlay" class="detail-overlay" style="display: none;">
+      <span class="close-btn" onclick="hideDetails()">✕</span>
       <div class="detail-content">
-        <div class="copa-text">
-          <h1>Copa Centroamericana</h1>
-          <p>La máxima competencia de fútbol centroamericano con los mejores equipos de la región en acción</p>
-          <div class="copa-tags">
-            <span>Fútbol</span>
-            <span>En Vivo</span>
-            <span>Concacaf</span>
-            <span>2024</span>
-          </div>
+        <h1>Contenido</h1>
+        <div class="tags">
+          <span>Género</span>
+          <span class="green">Disponible</span>
+          <span class="rating">⭐⭐⭐⭐⭐</span>
+          <span class="gray">Año</span>
         </div>
+        <p class="description">Descripción del contenido...</p>
+        <button class="watch-btn">▶ Ver ahora</button>
       </div>
     </div>
 
@@ -908,29 +921,46 @@
       return rows.flat();
     }
 
-                           // Función para actualizar el foco en los elementos interactivos
-          function updateElementFocus() {
-            // Remover foco de todos los elementos
-            allInteractiveElements.forEach(element => {
-              element.classList.remove('nav-focused');
-            });
-            
-            // Agregar foco al elemento actual
-            if (allInteractiveElements[currentElementIndex]) {
-              const currentElement = allInteractiveElements[currentElementIndex];
-              currentElement.classList.add('nav-focused');
-              currentElement.focus();
-              
-              // Scroll especial para el botón promocional - hacer scroll hacia arriba
-              if (currentElement.classList.contains('promo-btn')) {
-                console.log('BOTÓN PROMOCIONAL ENFOCADO - HACIENDO SCROLL HACIA ARRIBA');
-                window.scrollTo({
-                  top: 0,
-                  behavior: 'smooth'
-                });
-              }
-            }
-          }
+    // Función para actualizar el foco en los elementos interactivos
+    function updateElementFocus() {
+      // Verificar que hay elementos interactivos
+      if (allInteractiveElements.length === 0) return;
+      
+      // Asegurar que el índice esté dentro de los límites
+      if (currentElementIndex >= allInteractiveElements.length) {
+        currentElementIndex = 0;
+      }
+      if (currentElementIndex < 0) {
+        currentElementIndex = allInteractiveElements.length - 1;
+      }
+      
+      // Remover foco de todos los elementos
+      allInteractiveElements.forEach(element => {
+        element.classList.remove('nav-focused');
+      });
+      
+      // Agregar foco al elemento actual
+      if (allInteractiveElements[currentElementIndex]) {
+        const currentElement = allInteractiveElements[currentElementIndex];
+        currentElement.classList.add('nav-focused');
+        currentElement.focus();
+        
+        // Scroll especial para el botón promocional - hacer scroll hacia arriba
+        if (currentElement.classList.contains('promo-btn')) {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+        
+        // Scroll para elementos que no estén visibles
+        currentElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+    }
 
     // Función para actualizar el foco en los botones de navegación
     function updateNavFocus() {
@@ -948,42 +978,47 @@
 
     // Control unificado con teclado para carrusel y navegación
     document.addEventListener('keydown', function(event) {
+      // Prevenir comportamiento por defecto para todas las teclas de navegación
+      if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Enter', 'PageUp', 'PageDown'].includes(event.key)) {
+        event.preventDefault();
+      }
+      
       switch(event.key) {
         case 'ArrowRight':
           // Navegar horizontalmente hacia la derecha
-          event.preventDefault();
           navigateHorizontal(1);
           break;
         case 'ArrowLeft':
           // Navegar horizontalmente hacia la izquierda
-          event.preventDefault();
           navigateHorizontal(-1);
           break;
         case 'ArrowUp':
           // Navegar verticalmente hacia arriba
-          event.preventDefault();
           navigateVertical(-1);
           break;
         case 'ArrowDown':
           // Navegar verticalmente hacia abajo
-          event.preventDefault();
           navigateVertical(1);
           break;
         case 'Enter':
           // Activar el elemento seleccionado
-          event.preventDefault();
           if (allInteractiveElements[currentElementIndex]) {
-            allInteractiveElements[currentElementIndex].click();
+            const element = allInteractiveElements[currentElementIndex];
+            if (element.classList.contains('card') || element.classList.contains('app')) {
+              // Para tarjetas y apps, simular el evento de foco
+              element.focus();
+            } else {
+              // Para otros elementos, hacer clic
+              element.click();
+            }
           }
           break;
         case 'PageUp':
           // Control del carrusel - imagen anterior
-          event.preventDefault();
           previousSlide();
           break;
         case 'PageDown':
           // Control del carrusel - imagen siguiente
-          event.preventDefault();
           nextSlide();
           break;
       }
@@ -994,6 +1029,9 @@
       const rows = getElementsInRows();
       allInteractiveElements = getAllInteractiveElements();
       
+      // Verificar que hay elementos interactivos
+      if (allInteractiveElements.length === 0) return;
+      
       // Encontrar la fila actual y posición en esa fila
       let currentRow = 0;
       let currentPosInRow = 0;
@@ -1008,13 +1046,35 @@
         elementCount += rows[i].length;
       }
       
-      // Calcular nueva posición en la misma fila (sin navegación circular)
+      // Calcular nueva posición en la misma fila
       const newPosInRow = currentPosInRow + direction;
       
       // Verificar límites
       if (newPosInRow >= 0 && newPosInRow < rows[currentRow].length) {
         currentElementIndex = elementCount + newPosInRow;
         updateElementFocus();
+      } else if (direction > 0 && currentRow < rows.length - 1) {
+        // Ir a la siguiente fila si hay elementos
+        const nextRow = currentRow + 1;
+        if (rows[nextRow].length > 0) {
+          let nextElementCount = 0;
+          for (let i = 0; i < nextRow; i++) {
+            nextElementCount += rows[i].length;
+          }
+          currentElementIndex = nextElementCount;
+          updateElementFocus();
+        }
+      } else if (direction < 0 && currentRow > 0) {
+        // Ir a la fila anterior si hay elementos
+        const prevRow = currentRow - 1;
+        if (rows[prevRow].length > 0) {
+          let prevElementCount = 0;
+          for (let i = 0; i < prevRow; i++) {
+            prevElementCount += rows[i].length;
+          }
+          currentElementIndex = prevElementCount + Math.min(currentPosInRow, rows[prevRow].length - 1);
+          updateElementFocus();
+        }
       }
     }
     
@@ -1023,6 +1083,9 @@
       const rows = getElementsInRows();
       allInteractiveElements = getAllInteractiveElements();
       
+      // Verificar que hay elementos interactivos
+      if (allInteractiveElements.length === 0) return;
+      
       // Encontrar la fila actual y posición en esa fila
       let currentRow = 0;
       let currentPosInRow = 0;
@@ -1037,7 +1100,7 @@
         elementCount += rows[i].length;
       }
       
-      // Calcular la fila objetivo (sin navegación circular)
+      // Calcular la fila objetivo
       const targetRow = currentRow + direction;
       
       // Verificar límites
@@ -1083,12 +1146,11 @@
       }
     }, 400);
     
-                   function openOverlay() {
-        console.log('Abriendo overlay...');
-        const overlay = document.getElementById("overlay");
-        const overlayContent = overlay.querySelector('.overlay-content');
-        
-        if (overlay && overlayContent) {
+    function openOverlay() {
+      const overlay = document.getElementById("overlay");
+      const overlayContent = overlay.querySelector('.overlay-content');
+      
+      if (overlay && overlayContent) {
           overlay.style.display = "block";
           
           // Activar el overlay con fade
@@ -1126,7 +1188,6 @@
        
        // Funciones para el overlay de detalles
        function showDetails(title, genre, description, rating, badge, year) {
-         console.log('showDetails llamado para:', title); // Debug
          const overlay = document.getElementById('detail-overlay');
          
          // Limpiar cualquier timeout pendiente
@@ -1135,14 +1196,28 @@
            window.hideTimeout = null;
          }
          
+         // Actualizar el contenido del overlay con la información específica
+         const detailContent = overlay.querySelector('.detail-content');
+         if (detailContent) {
+           detailContent.innerHTML = `
+             <h1>${title}</h1>
+             <div class="tags">
+               <span>${genre}</span>
+               <span class="green">${badge}</span>
+               <span class="rating">${rating}</span>
+               <span class="gray">${year}</span>
+             </div>
+             <p class="description">${description}</p>
+             <button class="watch-btn">▶ Ver ahora</button>
+           `;
+         }
+         
          overlay.style.display = 'flex';
          
          // Activar el overlay con fade
          setTimeout(() => {
            overlay.classList.add('active');
          }, 10);
-         
-         // No cambiar el contenido del overlay - mantener el contenido genérico
        }
        
        function hideDetails() {
@@ -1167,73 +1242,57 @@
        
        // Manejar eventos de foco para las tarjetas y aplicaciones
        document.addEventListener('focusin', function(e) {
-         console.log('Focusin event triggered on:', e.target.tagName, e.target.className); // Debug general
+         // Remover foco de todos los elementos
+         document.querySelectorAll('.card, .app').forEach(el => {
+           el.classList.remove('nav-focused');
+         });
          
-         if (e.target.classList.contains('card')) {
-           console.log('Foco en tarjeta:', e.target.getAttribute('data-title')); // Debug
-           const card = e.target;
-           const title = card.getAttribute('data-title');
-           const genre = card.getAttribute('data-genre');
-           const description = card.getAttribute('data-description');
-           const rating = card.getAttribute('data-rating');
-           const badge = card.getAttribute('data-badge');
-           const year = card.getAttribute('data-year');
+         if (e.target.classList.contains('card') || e.target.classList.contains('app')) {
+           // Agregar foco visual
+           e.target.classList.add('nav-focused');
            
-           console.log('Datos de la tarjeta:', { title, genre, description, rating, badge, year }); // Debug
+           const element = e.target;
+           const title = element.getAttribute('data-title');
+           const genre = element.getAttribute('data-genre');
+           const description = element.getAttribute('data-description');
+           const rating = element.getAttribute('data-rating');
+           const badge = element.getAttribute('data-badge');
+           const year = element.getAttribute('data-year');
            
            if (title && genre && description && rating && badge && year) {
-             // Mostrar detalles de la tarjeta
-             console.log('Llamando a showDetails para:', title); // Debug
+             // Mostrar detalles
              showDetails(title, genre, description, rating, badge, year);
-           } else {
-             console.log('Faltan datos en la tarjeta:', e.target.getAttribute('data-title')); // Debug
-           }
-         }
-         
-         if (e.target.classList.contains('app')) {
-           console.log('Foco en aplicación:', e.target.getAttribute('data-title')); // Debug
-           const app = e.target;
-           const title = app.getAttribute('data-title');
-           const genre = app.getAttribute('data-genre');
-           const description = app.getAttribute('data-description');
-           const rating = app.getAttribute('data-rating');
-           const badge = app.getAttribute('data-badge');
-           const year = app.getAttribute('data-year');
-           
-           console.log('Datos de la aplicación:', { title, genre, description, rating, badge, year }); // Debug
-           
-           if (title && genre && description && rating && badge && year) {
-             // Mostrar detalles de la aplicación
-             console.log('Llamando a showDetails para:', title); // Debug
-             showDetails(title, genre, description, rating, badge, year);
-           } else {
-             console.log('Faltan datos en la aplicación:', e.target.getAttribute('data-title')); // Debug
            }
          }
        });
        
        // Evento adicional para asegurar que funcione con las tarjetas y aplicaciones
-         document.addEventListener('click', function(e) {
-           if (e.target.closest('.card')) {
-             const card = e.target.closest('.card');
-             console.log('Click en tarjeta:', card.getAttribute('data-title')); // Debug
-             
-             // Simular el foco si no está enfocada
-             if (!card.classList.contains('nav-focused')) {
-               card.focus();
-             }
-           }
+       document.addEventListener('click', function(e) {
+         const card = e.target.closest('.card');
+         const app = e.target.closest('.app');
+         
+         if (card) {
+           // Remover foco de todos los elementos
+           document.querySelectorAll('.card, .app').forEach(el => {
+             el.classList.remove('nav-focused');
+           });
            
-           if (e.target.closest('.app')) {
-             const app = e.target.closest('.app');
-             console.log('Click en aplicación:', app.getAttribute('data-title')); // Debug
-             
-             // Simular el foco si no está enfocada
-             if (!app.classList.contains('nav-focused')) {
-               app.focus();
-             }
-           }
-         });
+           // Agregar foco al elemento clickeado
+           card.classList.add('nav-focused');
+           card.focus();
+         }
+         
+         if (app) {
+           // Remover foco de todos los elementos
+           document.querySelectorAll('.card, .app').forEach(el => {
+             el.classList.remove('nav-focused');
+           });
+           
+           // Agregar foco al elemento clickeado
+           app.classList.add('nav-focused');
+           app.focus();
+         }
+       });
          
          // Evento para ocultar el overlay cuando se pierde el foco
          document.addEventListener('focusout', function(e) {
