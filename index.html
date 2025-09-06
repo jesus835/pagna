@@ -1,1253 +1,1325 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0" />
-  <title>Google TV Clone</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to top, #111, #333);
-      color: white;
-      overflow-x: hidden;
-      width: 1920px;
-      height: 1080px;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* Internet Explorer 10+ */
-    }
-    
-    body::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      padding: 40px 80px;
-      justify-content: space-between;
-      position: relative;
-      z-index: 10;
-    }
-
-    nav {
-      display: flex;
-      gap: 40px;
-      font-size: 28px;
-    }
-
-    nav a {
-      padding: 10px 20px;
-      border-radius: 20px;
-      background: #fff2;
-      cursor: pointer;
-      text-decoration: none;
-      color: white;
-    }
-
-    nav a:focus,
-    nav a:active {
-      background: white;
-      color: black;
-      padding: 8px 20px;
-      border-radius: 20px;
-      outline: none;
-    }
-
-    nav a.nav-focused {
-      background: white;
-      color: black;
-      padding: 8px 20px;
-      border-radius: 20px;
-      outline: none;
-      box-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-
-                   .highlight {
-        height: 550px;
-        position: relative;
-        display: flex;
-        align-items: flex-end;
-        padding: 40px 80px;
-        z-index: 3;
-      }
-
-    .highlight-content {
-      padding: 20px;
-    }
-
-
-
-         .section {
-       padding: 40px 80px;
-       margin: 20px 0;
-       position: relative;
-       z-index: 10;
-       transition: opacity 0.3s ease;
-     }
-    
-    #destacados-section {
-      transform: translateY(-75px);
-    }
-    
-    #aplicaciones-section {
-      transform: translateY(100px);
-    }
-
-    .section h2 {
-      font-size: 36px;
-      margin-bottom: 20px;
-    }
-
-              .cards, .apps {
-       display: flex;
-       gap: 30px;
-       overflow-x: auto;
-       scrollbar-width: none; /* Firefox */
-       -ms-overflow-style: none; /* Internet Explorer 10+ */
-     }
-     
-                       .cards {
-        padding-left: 40px;
-        min-height: 200px;
-      }
-    
-    .cards::-webkit-scrollbar, .apps::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
-
-    .card, .app {
-      flex: 0 0 auto;
-      width: 300px;
-      height: 170px;
-      border-radius: 20px;
-      background-color: #222;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .card img, .app img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-         .card:first-child img {
-       object-position: center -10px;
-     }
-     
-     .card:first-child {
-       border: 2px solid transparent;
-       transition: border-color 0.3s ease;
-     }
-     
-     .card:first-child:hover:not(.nav-focused) {
-       border-color: white;
-       transform: scale(1.02);
-     }
-     
-     /* Asegurar que la primera tarjeta también responda al foco */
-     .card:first-child.nav-focused {
-       box-shadow: 0 0 15px rgba(255,255,255,0.7);
-       outline: 3px solid white;
-       transform: scale(1.05);
-       transition: all 0.3s ease;
-       border-color: white;
-     }
-
-                   .apps .app {
-       width: 150px;
-       height: 150px;
-     }
-
-    .carousel {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: -1;
-    }
-
-    .slide {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      transition: opacity 1.5s ease;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-
-    .slide.active {
-      opacity: 1;
-      z-index: 1;
-    }
-
-    .slide-text {
-      position: absolute;
-      bottom: 40px;
-      left: 80px;
-      font-size: 64px;
-      background: rgba(0,0,0,0.5);
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .slide-description {
-      position: absolute;
-      bottom: 20px;
-      left: 80px;
-      font-size: 28px;
-      background: rgba(0,0,0,0.5);
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: #ccc;
-    }
-
-    .carousel-controls {
-      position: absolute;
-      bottom: 20px;
-      right: 80px;
-      z-index: 10;
-      display: flex;
-      gap: 10px;
-    }
-
-    .carousel-btn {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .carousel-btn:hover {
-      background: rgba(255,255,255,0.3);
-    }
-
-    .promo-content {
-      color: white;
-      padding: 50px;
-      border-radius: 30px;
-      max-width: 700px;
-      font-family: 'Roboto', sans-serif;
-      margin-top: 40px;
-      transform: translateX(0);
-      opacity: 1;
-      transition: transform 0.4s ease, opacity 0.3s ease;
-    }
-
-    .promo-content.slide-out {
-      transform: translateX(-100px);
-      opacity: 0;
-    }
-
-    .promo-content.slide-in {
-      transform: translateX(100px);
-      opacity: 0;
-    }
-
-    .promo-content.slide-in.active {
-      transform: translateX(0);
-      opacity: 1;
-    }
-
-    .promo-header {
-      font-size: 1.6em;
-      color: #ccc;
-      margin-bottom: 15px;
-    }
-
-    .promo-title {
-      font-size: 3em;
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
-
-    .promo-sub {
-      font-size: 1.5em;
-      color: #aaa;
-      margin-bottom: 20px;
-    }
-
-    .promo-desc {
-      font-size: 1.4em;
-      color: #bbb;
-      margin-bottom: 30px;
-      line-height: 1.6em;
-    }
-
-    .promo-btn {
-      background: white;
-      color: black;
-      padding: 18px 35px;
-      font-size: 1.4em;
-      border: none;
-      border-radius: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .promo-btn:hover {
-      background: #ddd;
-    }
-
-    .promo-btn.nav-focused {
-      background: #ddd;
-      box-shadow: 0 0 10px rgba(255,255,255,0.5);
-      outline: none;
-    }
-
-    .card.nav-focused {
-      box-shadow: 0 0 15px rgba(255,255,255,0.7);
-      outline: 3px solid white;
-      transform: scale(1.05);
-      transition: all 0.3s ease;
-    }
-
-    .app.nav-focused {
-      box-shadow: 0 0 15px rgba(255,255,255,0.7);
-      outline: 3px solid white;
-      transform: scale(1.1);
-      transition: all 0.3s ease;
-    }
-    
-         .overlay {
-       position: fixed;
-       top: 0;
-       left: 0;
-       width: 100%;
-       height: 100%;
-       background: linear-gradient(to right, #111, #222);
-       color: white;
-       z-index: 9999;
-       display: none;
-       padding: 40px 60px;
-       overflow-y: auto;
-       opacity: 0;
-       transition: opacity 0.5s ease;
-       pointer-events: auto;
-     }
-    
-    .overlay.active {
-      opacity: 1;
-    }
-    
-    .overlay-content {
-      max-width: 900px;
-      transform: translateX(100px);
-      opacity: 0;
-      transition: transform 0.4s ease, opacity 0.3s ease;
-    }
-    
-    .overlay-content.slide-in {
-      transform: translateX(100px);
-      opacity: 0;
-    }
-    
-    .overlay-content.slide-in.active {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    
-    .overlay .subtitle {
-      font-size: 1.2em;
-      color: #aaa;
-      margin-bottom: 10px;
-    }
-    
-    .overlay h1 {
-      font-size: 3em;
-      margin: 10px 0;
-    }
-    
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin: 15px 0;
-    }
-    
-    .tags span {
-      background: #333;
-      padding: 6px 12px;
-      border-radius: 15px;
-      font-size: 0.9em;
-    }
-    
-    .tags .green {
-      background: #1db954;
-      color: white;
-    }
-    
-    .tags .rating {
-      background: #222;
-      color: #ff6a00;
-    }
-    
-    .tags .gray {
-      background: #444;
-      color: #ccc;
-    }
-    
-    .description {
-      margin: 20px 0;
-      color: #ccc;
-      font-size: 1.1em;
-      max-width: 800px;
-    }
-    
-    .watch-btn {
-      background: white;
-      color: black;
-      font-size: 1.1em;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-bottom: 30px;
-    }
-    
-    .close-btn {
-      font-size: 2em;
-      position: absolute;
-      top: 30px;
-      right: 40px;
-      cursor: pointer;
-    }
-    
-    .thumbs {
-      display: flex;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    
-         .thumbs img {
-       width: 160px;
-       height: 90px;
-       object-fit: cover;
-       border-radius: 10px;
-     }
-     
-     .overlay-background {
-       position: absolute;
-       top: 0;
-       left: 0;
-       width: 100%;
-       height: 100%;
-       z-index: -1;
-       padding: 40px 80px;
-       padding-top: 120px;
-     }
-     
-     .overlay-background .section {
-       margin: 40px 0;
-     }
-     
-     /* Estilos para las tarjetas */
-     .card {
-       outline: none;
-     }
-     
-     /* Estilos para el overlay de detalles */
-     .detail-overlay {
-       position: fixed;
-       top: 0;
-       left: 0;
-       width: 100%;
-       height: 100%;
-       background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(17,17,17,0.8)), url('images/destacado1.jpg');
-       background-size: cover;
-       background-position: center;
-       color: white;
-       z-index: 5;
-       padding: 60px;
-       padding-top: 120px;
-       display: flex;
-       align-items: flex-start;
-       justify-content: flex-start;
-       opacity: 0;
-       transition: opacity 0.4s ease;
-       pointer-events: none;
-     }
-     
-     .detail-overlay.active {
-       opacity: 1;
-       pointer-events: auto;
-     }
-     
-     .detail-content {
-       max-width: 800px;
-       animation: fadeIn 0.4s ease;
-     }
-     
-     @keyframes fadeIn {
-       from { opacity: 0; transform: translateY(40px); }
-       to { opacity: 1; transform: translateY(0); }
-     }
-     
-     .detail-overlay .tags {
-       display: flex;
-       gap: 10px;
-       margin: 10px 0;
-     }
-     
-     .detail-overlay .tags span {
-       background: #444;
-       padding: 6px 12px;
-       border-radius: 15px;
-       font-size: 0.9em;
-     }
-     
-     .detail-overlay button {
-       background: white;
-       color: black;
-       font-size: 1.1em;
-       padding: 10px 20px;
-       border: none;
-       border-radius: 25px;
-       font-weight: bold;
-       cursor: pointer;
-       margin-top: 20px;
-     }
-     
-     /* Estilos para el texto de Copa Centroamericana */
-     .copa-text {
-       opacity: 0;
-       transform: translateY(30px);
-       transition: opacity 0.6s ease, transform 0.6s ease;
-     }
-     
-     .detail-overlay.active .copa-text {
-       opacity: 1;
-       transform: translateY(0);
-     }
-     
-     .copa-text h1 {
-       font-size: 3.5em;
-       margin-bottom: 20px;
-       color: white;
-       text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-     }
-     
-     .copa-text p {
-       font-size: 1.3em;
-       margin-bottom: 25px;
-       color: #ccc;
-       max-width: 600px;
-       line-height: 1.5;
-     }
-     
-     .copa-tags {
-       display: flex;
-       gap: 15px;
-       flex-wrap: wrap;
-     }
-     
-     .copa-tags span {
-       background: rgba(255,255,255,0.2);
-       color: white;
-       padding: 8px 16px;
-       border-radius: 20px;
-       font-size: 0.9em;
-       border: 1px solid rgba(255,255,255,0.3);
-     }
-     
-     /* Estilos para el elemento destacado de Above Majestic */
-     .highlight-card {
-       width: 500px;
-       padding: 20px;
-       background: linear-gradient(to right, #1a1a1a, #111);
-       border-radius: 10px;
-       box-shadow: 0 0 20px rgba(0,0,0,0.6);
-       margin: 20px;
-     }
-     .top-pick {
-       color: #aaa;
-       font-size: 14px;
-       margin-bottom: 5px;
-     }
-     .title {
-       font-size: 32px;
-       font-weight: bold;
-       margin-bottom: 10px;
-     }
-     .details {
-       display: flex;
-       gap: 10px;
-       align-items: center;
-       margin-bottom: 10px;
-       font-size: 14px;
-     }
-     .badge {
-       background: #1db954;
-       color: black;
-       padding: 2px 8px;
-       border-radius: 4px;
-       font-size: 12px;
-       font-weight: bold;
-     }
-     .rating {
-       background: #222;
-       padding: 2px 6px;
-       border-radius: 4px;
-       border: 1px solid #444;
-     }
-     .desc {
-       font-size: 13px;
-       color: #ccc;
-       margin-bottom: 15px;
-     }
-     .cta {
-       color: white;
-       font-weight: bold;
-       font-size: 14px;
-       background: transparent;
-       border: 1px solid #fff;
-       padding: 8px 16px;
-       border-radius: 4px;
-       display: inline-block;
-       text-decoration: none;
-     }
-     .cta:hover {
-       background: white;
-       color: black;
-     }
-      
-      
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamed - Partidos en Vivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #2d2d2d;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            font-size: 2.5rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #00cc6a;
+        }
+        
+        select {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 12px;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+        
+        #teamSearch {
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        #teamSearch:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 5px rgba(255, 107, 53, 0.3);
+        }
+        
+        #teamSearch::placeholder {
+            color: #888;
+        }
+        
+        .matches {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .match {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #444;
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .league {
+            background: #00ff88;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status.live {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .status.upcoming {
+            background: #ffaa00;
+            color: #000;
+        }
+        
+        .status.finished {
+            background: #666;
+            color: white;
+        }
+        
+        .teams {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .team {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+        }
+        
+        .score {
+            background: #00ff88;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .watch-btn {
+            width: 100%;
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .watch-btn:hover {
+            background: #0052a3;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+        }
+        
+        .modal-content {
+            background: #2d2d2d;
+            margin: 0;
+            padding: 0;
+            border-radius: 0;
+            width: 100%;
+            height: 100vh;
+            max-width: none;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px 20px 15px 20px;
+            border-bottom: 2px solid #444;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #444;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .close:hover {
+            color: white;
+            background: #ff4444;
+            transform: scale(1.1);
+        }
+        
+        
+        .stream-player {
+            background: #000;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .matches {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1 style="font-size: 32px;">Google TV</h1>
-    <nav>
-      <a href="#">Buscar</a>
-      <a href="#">Para ti</a>
-      <a href="#">En vivo</a>
-      <a href="#">Películas</a>
-      <a href="#">Series</a>
-      <a href="#">Aplicaciones</a>
-      <a href="#">Biblioteca</a>
-    </nav>
-    <img src="https://www.gstatic.com/tv/images/profile-placeholder.png" width="60" style="border-radius: 50%;">
-  </header>
-
-  <!-- Elemento destacado de Above Majestic -->
-  <div class="highlight-card">
-    <div class="top-pick">Top picks for you</div>
-    <div class="title">Above Majestic</div>
-    <div class="details">
-      <span>Plex</span>
-      <span class="badge">Free with ads</span>
-      <span>🍅 68%</span>
-      <span class="rating">Not Rated</span>
-      <span>Documentary</span>
-      <span>2018</span>
-    </div>
-    <div class="desc">
-      On September 10th 2001 Secretary of Defense Donald Rumsfeld announced that $2.3 trillion dollars could not be accounted for wit...
-    </div>
-    <a href="#" class="cta">▶ Watch now, no subscription required</a>
-  </div>
-
-     <div class="carousel">
-     <div class="slide active" style="background-image: url('images/appletv.jpg');"></div>
-     <div class="slide" style="background-image: url('images/copacentroamericana.png');"></div>
-     <div class="slide" style="background-image: url('images/appletv.jpg');"></div>
-     <div class="slide" style="background-image: url('images/copacentroamericana.png');"></div>
-        </div>
- 
-    <!-- Overlay de detalles dinámico -->
-    <div id="detail-overlay" class="detail-overlay" style="display: none;">
-      <div class="detail-content">
-        <div class="copa-text">
-          <h1>Copa Centroamericana</h1>
-          <p>La máxima competencia de fútbol centroamericano con los mejores equipos de la región en acción</p>
-          <div class="copa-tags">
-            <span>Fútbol</span>
-            <span>En Vivo</span>
-            <span>Concacaf</span>
-            <span>2024</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-            <div class="highlight">
-     <div class="highlight-content">
-       <div id="promo-container"></div>
-     </div>
-   </div>
-
-   <div class="section" id="destacados-section">
-     <h2>Destacados</h2>
-          <div class="cards">
-                            <div class="card" tabindex="0" data-title="Above Majestic" data-genre="Documentary" data-description="On September 10th 2001 Secretary of Defense Donald Rumsfeld announced that $2.3 trillion dollars could not be accounted for with the Pentagon. This documentary explores the implications of this massive financial discrepancy." data-rating="🍅 68%" data-badge="Free with ads" data-year="2018"><img src="images/destacado1.jpg" alt="Destacado 1" /></div>
-        <div class="card" tabindex="0" data-title="Game of Thrones" data-genre="Drama" data-description="Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia." data-rating="🍅 95%" data-badge="HBO Max" data-year="2011-2019"><img src="https://images-na.ssl-images-amazon.com/images/I/81+YVnrVxCL._RI_.jpg" alt="Juego de Tronos" /></div>
-        <div class="card" tabindex="0" data-title="Power Book II: Ghost" data-genre="Crime Drama" data-description="Tariq St. Patrick is navigating his new life, in which his desire to shed his father's legacy comes up against the mounting pressure to save his family." data-rating="🍅 87%" data-badge="Starz" data-year="2020"><img src="https://m.media-amazon.com/images/I/710dbdqOthL._AC_UF894,1000_QL80_.jpg" alt="Power Book II Ghost" /></div>
-        <div class="card" tabindex="0" data-title="Motherland: Fort Salem" data-genre="Fantasy Drama" data-description="In an alternate America where witches ended their persecution by cutting a deal with the government to fight for their country, three young women join basic training." data-rating="🍅 78%" data-badge="Freeform" data-year="2020"><img src="https://i.pinimg.com/originals/bc/cc/34/bccc34d8f9b8c36054a6a5c30eab969f.jpg" alt="Motherland: Fort Salem" /></div>
-        <div class="card" tabindex="0" data-title="The Mandalorian" data-genre="Sci-Fi" data-description="The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic." data-rating="🍅 93%" data-badge="Disney+" data-year="2019"><img src="https://cdn.wallpapersafari.com/41/94/LWla4u.jpg" alt="Ejemplo 5" /></div>
-     </div>
-   </div>
-
-   <div class="section" id="aplicaciones-section">
-     <h2>Tus Aplicaciones</h2>
-     <div class="apps">
-       <div class="app" tabindex="0" data-title="YouTube" data-genre="Streaming" data-description="YouTube es una plataforma de videos en línea que permite a los usuarios ver, subir, compartir y comentar videos. Es propiedad de Google y es una de las plataformas de entretenimiento más populares del mundo." data-rating="⭐⭐⭐⭐⭐" data-badge="Gratis" data-year="2005"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" /></div>
-       <div class="app" tabindex="0" data-title="Netflix" data-genre="Streaming" data-description="Netflix es un servicio de streaming que ofrece una amplia variedad de series, películas, documentales y programas de televisión premiados en miles de dispositivos conectados a internet." data-rating="⭐⭐⭐⭐⭐" data-badge="Suscripción" data-year="1997"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" /></div>
-       <div class="app" tabindex="0" data-title="Prime Video" data-genre="Streaming" data-description="Prime Video es un servicio de streaming de Amazon que ofrece miles de películas y series de televisión, incluyendo contenido original exclusivo de Amazon Studios." data-rating="⭐⭐⭐⭐" data-badge="Prime" data-year="2006"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Prime_Video.png" /></div>
-       <div class="app" tabindex="0" data-title="Disney+" data-genre="Streaming" data-description="Disney+ es el servicio de streaming de Disney que ofrece contenido de Disney, Pixar, Marvel, Star Wars, National Geographic y más, todo en una sola plataforma." data-rating="⭐⭐⭐⭐⭐" data-badge="Suscripción" data-year="2019"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" /></div>
-       <div class="app" tabindex="0" data-title="YouTube Music" data-genre="Música" data-description="YouTube Music es un servicio de música en streaming que te permite descubrir música oficial, remixes, covers y más, todo en una sola aplicación." data-rating="⭐⭐⭐⭐" data-badge="Premium" data-year="2015"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" /></div>
-       <div class="app" tabindex="0" data-title="HBO Max" data-genre="Streaming" data-description="HBO Max es un servicio de streaming que combina todo lo que amas de HBO con aún más series, películas y contenido exclusivo de Warner Bros." data-rating="⭐⭐⭐⭐⭐" data-badge="Suscripción" data-year="2020"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/HBO_Max_Logo.svg" /></div>
-       <div class="app" tabindex="0" data-title="Spotify" data-genre="Música" data-description="Spotify es un servicio de música digital que te da acceso a millones de canciones, podcasts y videos de artistas de todo el mundo." data-rating="⭐⭐⭐⭐⭐" data-badge="Freemium" data-year="2006"><img src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" /></div>
-          </div>
-    </div>
- 
-   <div id="overlay" class="overlay">
-     <div class="overlay-content slide-in">
-       <span class="close-btn" onclick="closeOverlay()">✕</span>
-       <p class="subtitle">Top picks for you</p>
-       <h1>Contenido Destacado</h1>
-       <div class="tags">
-         <span>Streaming</span>
-         <span class="green">Disponible</span>
-         <span class="rating">⭐⭐⭐⭐⭐</span>
-         <span class="gray">Todas las edades</span>
-         <span>Entretenimiento</span>
-         <span>2024</span>
-       </div>
-       <p class="description">
-         Descubre el mejor contenido de entretenimiento seleccionado especialmente para ti...
-       </p>
-       <button class="watch-btn">▶ Ver ahora</button>
- 
-       <div class="thumbs">
-         <img src="https://img.example.com/placeholder1.jpg" />
-         <img src="https://img.example.com/placeholder2.jpg" />
-         <img src="https://img.example.com/placeholder3.jpg" />
-         <img src="https://img.example.com/placeholder4.jpg" />
-       </div>
-     </div>
-     
-     <!-- Fondo con solo destacados y aplicaciones -->
-     <div class="overlay-background">
-       <div class="section">
-         <h2>Destacados</h2>
-         <div class="cards">
-           <div class="card" tabindex="0" data-title="Above Majestic" data-genre="Documentary" data-description="On September 10th 2001 Secretary of Defense Donald Rumsfeld announced that $2.3 trillion dollars could not be accounted for with the Pentagon. This documentary explores the implications of this massive financial discrepancy." data-rating="🍅 68%" data-badge="Free with ads" data-year="2018"><img src="images/destacado1.jpg" alt="Destacado 1" /></div>
-           <div class="card" tabindex="0" data-title="Game of Thrones" data-genre="Drama" data-description="Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia." data-rating="🍅 95%" data-badge="HBO Max" data-year="2011-2019"><img src="https://images-na.ssl-images-amazon.com/images/I/81+YVnrVxCL._RI_.jpg" alt="Juego de Tronos" /></div>
-           <div class="card" tabindex="0" data-title="Power Book II: Ghost" data-genre="Crime Drama" data-description="Tariq St. Patrick is navigating his new life, in which his desire to shed his father's legacy comes up against the mounting pressure to save his family." data-rating="🍅 87%" data-badge="Starz" data-year="2020"><img src="https://m.media-amazon.com/images/I/710dbdqOthL._AC_UF894,1000_QL80_.jpg" alt="Power Book II Ghost" /></div>
-           <div class="card" tabindex="0" data-title="Motherland: Fort Salem" data-genre="Fantasy Drama" data-description="In an alternate America where witches ended their persecution by cutting a deal with the government to fight for their country, three young women join basic training." data-rating="🍅 78%" data-badge="Freeform" data-year="2020"><img src="https://i.pinimg.com/originals/bc/cc/34/bccc34d8f9b8c36054a6a5c30eab969f.jpg" alt="Motherland: Fort Salem" /></div>
-           <div class="card" tabindex="0" data-title="The Mandalorian" data-genre="Sci-Fi" data-description="The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic." data-rating="🍅 93%" data-badge="Disney+" data-year="2019"><img src="https://cdn.wallpapersafari.com/41/94/LWla4u.jpg" alt="Ejemplo 5" /></div>
-         </div>
-       </div>
- 
-       <div class="section">
-         <h2>Tus Aplicaciones</h2>
-         <div class="apps">
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" /></div>
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" /></div>
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f1/Prime_Video.png" /></div>
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" /></div>
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" /></div>
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/HBO_Max_Logo.svg" /></div>
-           <div class="app"><img src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" /></div>
-         </div>
-       </div>
-     </div>
-          </div>
-
-
-  
-    <script>
-    let index = 0;
-    const slides = document.querySelectorAll('.slide');
-
-         function showSlide(newIndex) {
-       const promoContainer = document.getElementById('promo-container');
-       const currentPromoContent = promoContainer.querySelector('.promo-content');
-       
-       // Hacer que el contenido actual se deslice hacia la izquierda y se desvanezca
-       if (currentPromoContent) {
-         currentPromoContent.classList.add('slide-out');
-       }
-      
-      // Después de 0.2 segundos, cambiar la imagen y el contenido
-      setTimeout(() => {
-        slides[index].classList.remove('active');
-        index = newIndex;
-        slides[index].classList.add('active');
+    <div class="container">
+        <header>
+            <h1>🏆 Futbol Libre - Partidos en Vivo</h1>
+        </header>
         
-                                   // Cambiar contenido según la imagen
-          if (slides[index].style.backgroundImage.includes('appletv')) {
-            // Mostrar contenido promocional para Apple TV
-            promoContainer.innerHTML = `
-              <div class="promo-content slide-in">
-                <div class="promo-header">Apple TV</div>
-                <div class="promo-title">Leagues Cup</div>
-                <div class="promo-sub">En vivo ahora • Fútbol de élite</div>
-                <div class="promo-desc">
-                  La competencia más emocionante entre las mejores ligas del mundo con los clubes más prestigiosos
+        <div class="controls">
+            <button onclick="loadMatches()">Cargar Partidos</button>
+            <button onclick="loadLiveMatches()">Solo En Vivo</button>
+            <button onclick="showFootballOnly()">Solo Fútbol</button>
+            <button onclick="loadAllSports()">Ver Todos los Deportes</button>
+            <input type="text" id="teamSearch" placeholder="Buscar por equipo (ej: Barcelona)" onkeyup="searchByTeam()" style="padding: 8px; border: 1px solid #444; border-radius: 4px; background: #333; color: white; margin: 0 5px;">
+            <button onclick="clearSearch()" style="background: #666; color: white; border: 1px solid #666; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Limpiar</button>
+            <select id="sportFilter" onchange="filterBySport()">
+                <option value="">Todas las categorías</option>
+            </select>
+            <select id="leagueFilter" onchange="filterByLeague()">
+                <option value="">Todas las categorías</option>
+            </select>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            Cargando partidos...
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="matches" class="matches">
+            <!-- Los partidos se cargarán aquí -->
+        </div>
+    </div>
+    
+    <!-- Modal para ver stream -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Ver Partido</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="stream-player" id="streamPlayer">
+                <!-- Reproductor de video -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stream Overlay -->
+    <div id="streamOverlay" class="stream-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000;">
+        <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #111; color: #fff;">
+                <div style="font-weight: 700;">Stream en Vivo</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="adTimer" style="color: #ff6b35; font-weight: 700; display: none;">Cargando publicidad... <span id="countdown">5</span>s</div>
+                    <button id="closeAdBtn" onclick="closeAdAndShowStream()" style="background: #ff6b35; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: none;">Cerrar Publicidad</button>
+                    <button id="closeStreamBtn" onclick="closeStreamOverlay()" style="background: #ff6b35; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: none;">Cerrar Stream</button>
                 </div>
-                <button class="promo-btn">Ver en vivo ahora</button>
-              </div>
-            `;
+            </div>
+            <div id="adContainer" style="flex: 1; width: 100%; background: #000; display: none;">
+                <iframe id="adIframe" src="" style="width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+            </div>
+            <iframe id="streamIframe" src="" style="flex: 1; width: 100%; border: 0; background: #000; display: none;" allowfullscreen></iframe>
+        </div>
+    </div>
+    
+    <script>
+        // Configuración de la API de Streamed
+        const API_BASE = 'https://streamed.pk/api';
+        let currentMatches = [];
+        
+        // Cargar partidos
+        async function loadMatches() {
+            showLoading(true);
+            hideError();
             
-            // Hacer que el nuevo contenido aparezca con fade
-            setTimeout(() => {
-              const newPromoContent = promoContainer.querySelector('.promo-content');
-              if (newPromoContent) {
-                newPromoContent.classList.add('active');
-              }
-              // Actualizar la lista de elementos interactivos después de crear el botón
-              allInteractiveElements = getAllInteractiveElements();
-            }, 50);
-            
-            // Después de 0.4 segundos, quitar las clases de animación
-            setTimeout(() => {
-              const newPromoContent = promoContainer.querySelector('.promo-content');
-              if (newPromoContent) {
-                newPromoContent.classList.remove('slide-in', 'active');
-              }
-            }, 400);
-                  } else {
-                      // Mostrar contenido promocional para Copa Centroamericana
-            promoContainer.innerHTML = `
-              <div class="promo-content slide-in">
-                <div class="promo-header">Concacaf</div>
-                <div class="promo-title">Copa Centroamericana</div>
-                <div class="promo-sub">En vivo ahora • Fútbol internacional</div>
-                <div class="promo-desc">
-                  La máxima competencia de fútbol centroamericano con los mejores equipos de la región en acción
-                </div>
-                <button class="promo-btn">Ver en vivo ahora</button>
-              </div>
-            `;
-          
-                     // Hacer que el nuevo contenido aparezca con fade
-           setTimeout(() => {
-             const newPromoContent = promoContainer.querySelector('.promo-content');
-             if (newPromoContent) {
-               newPromoContent.classList.add('active');
-             }
-             // Actualizar la lista de elementos interactivos después de crear el botón
-             allInteractiveElements = getAllInteractiveElements();
-           }, 50);
-          
-                     // Después de 0.4 segundos, quitar las clases de animación
-           setTimeout(() => {
-             const newPromoContent = promoContainer.querySelector('.promo-content');
-             if (newPromoContent) {
-               newPromoContent.classList.remove('slide-in', 'active');
-             }
-           }, 400);
+            try {
+                console.log('=== INICIANDO CARGA DE PARTIDOS ===');
+                console.log('API_BASE:', API_BASE);
+                
+                // Primero obtener deportes disponibles
+                console.log('Obteniendo deportes...');
+                const sportsResponse = await fetch(`${API_BASE}/sports`);
+                console.log('Respuesta deportes:', sportsResponse.status, sportsResponse.ok);
+                
+                if (!sportsResponse.ok) {
+                    throw new Error(`Error ${sportsResponse.status}: ${sportsResponse.statusText}`);
+                }
+                
+                const sports = await sportsResponse.json();
+                console.log('Deportes obtenidos:', sports);
+                
+                if (sports.length === 0) {
+                    showError('No hay deportes disponibles');
+                    return;
+                }
+                
+                // Buscar fútbol primero, si no existe usar el primer deporte
+                let selectedSport = sports.find(sport => sport.id === 'football' || sport.name.toLowerCase().includes('football') || sport.name.toLowerCase().includes('soccer'));
+                if (!selectedSport) {
+                    selectedSport = sports[0];
+                }
+                
+                console.log('Deporte seleccionado:', selectedSport);
+                console.log('Cargando partidos para deporte ID:', selectedSport.id);
+                
+                const response = await fetch(`${API_BASE}/matches/${selectedSport.id}`);
+                console.log('Respuesta partidos:', response.status, response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Partidos obtenidos:', data);
+                console.log('Cantidad de partidos:', data.length);
+                
+                currentMatches = data;
+                displayMatches(data);
+                populateFilters(data, sports);
+            } catch (error) {
+                console.error('Error completo:', error);
+                showError('Error al cargar partidos: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
         }
         
-      }, 200);
-    }
-
-    function nextSlide() {
-      const newIndex = (index + 1) % slides.length;
-      showSlide(newIndex);
-    }
-
-    function previousSlide() {
-      const newIndex = (index - 1 + slides.length) % slides.length;
-      showSlide(newIndex);
-    }
-
-    // Auto-advance cada 11 segundos
-    setInterval(nextSlide, 11000);
-
-    // Navegación con teclado entre botones de navegación y elementos interactivos
-    let currentNavIndex = 0;
-    let currentElementIndex = 0;
-    const navButtons = document.querySelectorAll('nav a');
-    let allInteractiveElements = [];
-
-    // Función para obtener todos los elementos interactivos organizados en filas
-    function getElementsInRows() {
-      const navElements = Array.from(navButtons);
-      const promoButton = document.querySelector('.promo-btn');
-      
-      // Solo contar elementos que NO estén dentro del overlay
-      const cards = document.querySelectorAll('.card:not(.overlay .card):not(.overlay-background .card)');
-      const apps = document.querySelectorAll('.app:not(.overlay .app):not(.overlay-background .app)');
-      
-      // Fila 1: Botones de navegación
-      const row1 = [...navElements];
-      
-      // Fila 2: Botón promocional (si existe)
-      const row2 = promoButton ? [promoButton] : [];
-      
-      // Fila 3: Tarjetas de destacados (solo las visibles)
-      const row3 = Array.from(cards);
-      
-      // Fila 4: Aplicaciones (solo las visibles)
-      const row4 = Array.from(apps);
-      
-      return [row1, row2, row3, row4];
-    }
-    
-    // Función para obtener todos los elementos interactivos (planos)
-    function getAllInteractiveElements() {
-      const rows = getElementsInRows();
-      return rows.flat();
-    }
-
-                           // Función para actualizar el foco en los elementos interactivos
-          function updateElementFocus() {
-            // Remover foco de todos los elementos
-            allInteractiveElements.forEach(element => {
-              element.classList.remove('nav-focused');
+        // Cargar solo partidos en vivo
+        async function loadLiveMatches() {
+            showLoading(true);
+            hideError();
+            
+            try {
+                console.log('=== CARGANDO PARTIDOS EN VIVO ===');
+                console.log('URL:', `${API_BASE}/matches/live`);
+                
+                const response = await fetch(`${API_BASE}/matches/live`);
+                console.log('Respuesta partidos en vivo:', response.status, response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Partidos en vivo obtenidos:', data);
+                console.log('Cantidad de partidos en vivo:', data.length);
+                
+                currentMatches = data;
+                displayMatches(data);
+                
+                // Obtener deportes para los filtros
+                const sportsResponse = await fetch(`${API_BASE}/sports`);
+                const sports = await sportsResponse.json();
+                populateFilters(data, sports);
+            } catch (error) {
+                console.error('Error cargando partidos en vivo:', error);
+                showError('Error al cargar partidos en vivo: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Mostrar partidos
+        function displayMatches(matches) {
+            const container = document.getElementById('matches');
+            container.innerHTML = '';
+            
+            if (!matches || matches.length === 0) {
+                container.innerHTML = '<div class="error">No hay partidos disponibles</div>';
+                return;
+            }
+            
+            // Filtrar solo partidos del día actual
+            const today = new Date();
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+            const todayEnd = todayStart + (24 * 60 * 60 * 1000); // 24 horas después
+            
+            const todayMatches = matches.filter(match => {
+                // Incluir partidos en vivo (fecha = 0)
+                if (match.date === 0) return true;
+                
+                // Incluir partidos del día actual
+                return match.date >= todayStart && match.date < todayEnd;
             });
             
-            // Agregar foco al elemento actual
-            if (allInteractiveElements[currentElementIndex]) {
-              const currentElement = allInteractiveElements[currentElementIndex];
-              currentElement.classList.add('nav-focused');
-              currentElement.focus();
-              
-              // Scroll especial para el botón promocional - hacer scroll hacia arriba
-              if (currentElement.classList.contains('promo-btn')) {
-                console.log('BOTÓN PROMOCIONAL ENFOCADO - HACIENDO SCROLL HACIA ARRIBA');
-                window.scrollTo({
-                  top: 0,
-                  behavior: 'smooth'
+            console.log(`Partidos del día: ${todayMatches.length} de ${matches.length} total`);
+            console.log('Fecha actual:', today.toLocaleDateString('es-ES'));
+            
+            // Debug: mostrar estructura de datos en consola
+            console.log('Estructura de datos de partidos:', todayMatches);
+            if (todayMatches.length > 0) {
+                console.log('Ejemplo de partido:', todayMatches[0]);
+                console.log('Campos disponibles:', Object.keys(todayMatches[0]));
+                
+                // Debug de fechas
+                console.log('=== DEBUG FECHAS ===');
+                const now = Date.now();
+                console.log('Fecha actual:', new Date(now).toLocaleString('es-ES'));
+                
+                todayMatches.slice(0, 5).forEach((match, index) => {
+                    const matchDate = new Date(match.date);
+                    const status = getMatchStatus(match);
+                    console.log(`Partido ${index + 1}:`, {
+                        title: match.title,
+                        date: match.date,
+                        formattedDate: matchDate.toLocaleString('es-ES'),
+                        status: status,
+                        isPast: match.date < now,
+                        isFuture: match.date > now
+                    });
                 });
-              }
             }
-          }
+            
+            todayMatches.forEach(match => {
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'match';
+                
+                const status = getMatchStatus(match);
+                const statusClass = status.toLowerCase();
+                
+                // Extraer equipos del título
+                const titleParts = match.title.split(' vs ');
+                const team1 = titleParts[0] || 'Equipo 1';
+                const team2 = titleParts[1] || 'Equipo 2';
+                
+                // Obtener información de equipos si está disponible
+                const homeTeam = match.teams?.home?.name || team1;
+                const awayTeam = match.teams?.away?.name || team2;
+                const homeScore = match.teams?.home?.score || '-';
+                const awayScore = match.teams?.away?.score || '-';
+                
+                // Información de fuentes disponibles
+                const sourcesInfo = match.sources && match.sources.length > 0 
+                    ? `${match.sources.length} fuente${match.sources.length > 1 ? 's' : ''} disponible${match.sources.length > 1 ? 's' : ''}`
+                    : 'Sin fuentes';
 
-    // Función para actualizar el foco en los botones de navegación
-    function updateNavFocus() {
-      // Remover foco de todos los botones
-      navButtons.forEach(btn => {
-        btn.classList.remove('nav-focused');
-      });
-      
-      // Agregar foco al botón actual
-      if (navButtons[currentNavIndex]) {
-        navButtons[currentNavIndex].classList.add('nav-focused');
-        navButtons[currentNavIndex].focus();
-      }
-    }
-
-    // Control unificado con teclado para carrusel y navegación
-    document.addEventListener('keydown', function(event) {
-      switch(event.key) {
-        case 'ArrowRight':
-          // Navegar horizontalmente hacia la derecha
-          event.preventDefault();
-          navigateHorizontal(1);
-          break;
-        case 'ArrowLeft':
-          // Navegar horizontalmente hacia la izquierda
-          event.preventDefault();
-          navigateHorizontal(-1);
-          break;
-        case 'ArrowUp':
-          // Navegar verticalmente hacia arriba
-          event.preventDefault();
-          navigateVertical(-1);
-          break;
-        case 'ArrowDown':
-          // Navegar verticalmente hacia abajo
-          event.preventDefault();
-          navigateVertical(1);
-          break;
-        case 'Enter':
-          // Activar el elemento seleccionado
-          event.preventDefault();
-          if (allInteractiveElements[currentElementIndex]) {
-            allInteractiveElements[currentElementIndex].click();
-          }
-          break;
-        case 'PageUp':
-          // Control del carrusel - imagen anterior
-          event.preventDefault();
-          previousSlide();
-          break;
-        case 'PageDown':
-          // Control del carrusel - imagen siguiente
-          event.preventDefault();
-          nextSlide();
-          break;
-      }
-    });
-    
-    // Función para navegar horizontalmente
-    function navigateHorizontal(direction) {
-      const rows = getElementsInRows();
-      allInteractiveElements = getAllInteractiveElements();
-      
-      // Encontrar la fila actual y posición en esa fila
-      let currentRow = 0;
-      let currentPosInRow = 0;
-      let elementCount = 0;
-      
-      for (let i = 0; i < rows.length; i++) {
-        if (elementCount + rows[i].length > currentElementIndex) {
-          currentRow = i;
-          currentPosInRow = currentElementIndex - elementCount;
-          break;
-        }
-        elementCount += rows[i].length;
-      }
-      
-      // Calcular nueva posición en la misma fila (sin navegación circular)
-      const newPosInRow = currentPosInRow + direction;
-      
-      // Verificar límites
-      if (newPosInRow >= 0 && newPosInRow < rows[currentRow].length) {
-        currentElementIndex = elementCount + newPosInRow;
-        updateElementFocus();
-      }
-    }
-    
-    // Función para navegar verticalmente
-    function navigateVertical(direction) {
-      const rows = getElementsInRows();
-      allInteractiveElements = getAllInteractiveElements();
-      
-      // Encontrar la fila actual y posición en esa fila
-      let currentRow = 0;
-      let currentPosInRow = 0;
-      let elementCount = 0;
-      
-      for (let i = 0; i < rows.length; i++) {
-        if (elementCount + rows[i].length > currentElementIndex) {
-          currentRow = i;
-          currentPosInRow = currentElementIndex - elementCount;
-          break;
-        }
-        elementCount += rows[i].length;
-      }
-      
-      // Calcular la fila objetivo (sin navegación circular)
-      const targetRow = currentRow + direction;
-      
-      // Verificar límites
-      if (targetRow >= 0 && targetRow < rows.length && rows[targetRow].length > 0) {
-        const targetPosInRow = Math.min(currentPosInRow, rows[targetRow].length - 1);
-        let targetElementCount = 0;
-        
-        for (let i = 0; i < targetRow; i++) {
-          targetElementCount += rows[i].length;
+                matchDiv.innerHTML = `
+                    <div class="match-header">
+                        <span class="league">${match.category || 'Deporte'}</span>
+                        <span class="status ${statusClass}">${status}</span>
+                    </div>
+                    <div class="teams">
+                        <div class="team">
+                            <span>${homeTeam}</span>
+                            <span class="score">${homeScore}</span>
+                        </div>
+                        <div class="team">
+                            <span>${awayTeam}</span>
+                            <span class="score">${awayScore}</span>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 10px 0; font-size: 0.8rem; color: #888;">
+                        ${sourcesInfo}
+                    </div>
+                    <button class="watch-btn" onclick="watchMatch('${match.id}')">
+                        Ver Partido
+                    </button>
+                `;
+                
+                container.appendChild(matchDiv);
+            });
         }
         
-        currentElementIndex = targetElementCount + targetPosInRow;
-        updateElementFocus();
-      }
-    }
-
-    // Inicializar foco en el primer elemento interactivo
-    allInteractiveElements = getAllInteractiveElements();
-    updateElementFocus();
-
-         // Inicializar contenido promocional al cargar la página
-     const promoContainer = document.getElementById('promo-container');
-     promoContainer.innerHTML = `
-       <div class="promo-content slide-in active">
-         <div class="promo-header">Apple TV</div>
-         <div class="promo-title">Leagues Cup</div>
-         <div class="promo-sub">En vivo ahora • Fútbol de élite</div>
-         <div class="promo-desc">
-           La competencia más emocionante entre las mejores ligas del mundo con los clubes más prestigiosos
-         </div>
-         <button class="promo-btn">Ver en vivo ahora</button>
-       </div>
-     `;
-    
-    // Actualizar la lista de elementos interactivos después de crear el botón inicial
-    allInteractiveElements = getAllInteractiveElements();
-    
-    // Después de 0.4 segundos, quitar las clases de animación inicial
-    setTimeout(() => {
-      const initialPromoContent = promoContainer.querySelector('.promo-content');
-      if (initialPromoContent) {
-        initialPromoContent.classList.remove('slide-in', 'active');
-      }
-    }, 400);
-    
-                   function openOverlay() {
-        console.log('Abriendo overlay...');
-        const overlay = document.getElementById("overlay");
-        const overlayContent = overlay.querySelector('.overlay-content');
-        
-        if (overlay && overlayContent) {
-          overlay.style.display = "block";
-          
-          // Activar el overlay con fade
-          setTimeout(() => {
-            overlay.classList.add('active');
-          }, 10);
-          
-          // Activar la animación del contenido
-          setTimeout(() => {
-            overlayContent.classList.add('active');
-          }, 100);
-        } else {
-          console.error('No se encontró el overlay o su contenido');
+        // Determinar estado del partido
+        function getMatchStatus(match) {
+            const now = Date.now();
+            const matchDate = match.date;
+            
+            // Si la fecha es 0, probablemente es un canal/stream especial
+            if (matchDate === 0) {
+                return 'EN VIVO';
+            }
+            
+            // Convertir timestamp a milisegundos si es necesario
+            const matchTime = matchDate > 1000000000000 ? matchDate : matchDate * 1000;
+            
+            // Si la fecha es en el pasado (más de 2 horas), está finalizado
+            if (matchTime < (now - 2 * 60 * 60 * 1000)) {
+                return 'FINALIZADO';
+            }
+            
+            // Si la fecha es en el pasado pero menos de 2 horas, probablemente en vivo
+            if (matchTime < now) {
+                return 'EN VIVO';
+            }
+            
+            // Si la fecha es en el futuro, está próximo
+            return 'PRÓXIMO';
         }
-      }
-
-      function closeOverlay() {
-        console.log('Cerrando overlay...');
-        const overlay = document.getElementById("overlay");
-        const overlayContent = overlay.querySelector('.overlay-content');
         
-        if (overlay && overlayContent) {
-          // Desactivar la animación del contenido
-          overlayContent.classList.remove('active');
-          
-          // Desactivar el overlay con fade
-          overlay.classList.remove('active');
-          
-          // Ocultar el overlay después de la animación
-          setTimeout(() => {
-            overlay.style.display = "none";
-          }, 500);
-                 }
-       }
-       
-       // Funciones para el overlay de detalles
-       function showDetails(title, genre, description, rating, badge, year) {
-         console.log('showDetails llamado para:', title); // Debug
-         const overlay = document.getElementById('detail-overlay');
-         
-         // Limpiar cualquier timeout pendiente
-         if (window.hideTimeout) {
-           clearTimeout(window.hideTimeout);
-           window.hideTimeout = null;
-         }
-         
-         overlay.style.display = 'flex';
-         
-         // Activar el overlay con fade
-         setTimeout(() => {
-           overlay.classList.add('active');
-         }, 10);
-         
-         // No cambiar el contenido del overlay - mantener el contenido genérico
-       }
-       
-       function hideDetails() {
-         const overlay = document.getElementById('detail-overlay');
-         
-         // Desactivar el overlay con fade
-         overlay.classList.remove('active');
-         
-         // Ocultar el overlay después de la animación con timeout
-         window.hideTimeout = setTimeout(() => {
-           overlay.style.display = 'none';
-           window.hideTimeout = null;
-         }, 400);
-       }
-       
-       // Cerrar con ESC
-       document.addEventListener('keydown', function(e) {
-         if (e.key === 'Escape') {
-           hideDetails();
-         }
-       });
-       
-       // Manejar eventos de foco para las tarjetas y aplicaciones
-       document.addEventListener('focusin', function(e) {
-         console.log('Focusin event triggered on:', e.target.tagName, e.target.className); // Debug general
-         
-         if (e.target.classList.contains('card')) {
-           console.log('Foco en tarjeta:', e.target.getAttribute('data-title')); // Debug
-           const card = e.target;
-           const title = card.getAttribute('data-title');
-           const genre = card.getAttribute('data-genre');
-           const description = card.getAttribute('data-description');
-           const rating = card.getAttribute('data-rating');
-           const badge = card.getAttribute('data-badge');
-           const year = card.getAttribute('data-year');
-           
-           console.log('Datos de la tarjeta:', { title, genre, description, rating, badge, year }); // Debug
-           
-           if (title && genre && description && rating && badge && year) {
-             // Mostrar detalles de la tarjeta
-             console.log('Llamando a showDetails para:', title); // Debug
-             showDetails(title, genre, description, rating, badge, year);
-           } else {
-             console.log('Faltan datos en la tarjeta:', e.target.getAttribute('data-title')); // Debug
-           }
-         }
-         
-         if (e.target.classList.contains('app')) {
-           console.log('Foco en aplicación:', e.target.getAttribute('data-title')); // Debug
-           const app = e.target;
-           const title = app.getAttribute('data-title');
-           const genre = app.getAttribute('data-genre');
-           const description = app.getAttribute('data-description');
-           const rating = app.getAttribute('data-rating');
-           const badge = app.getAttribute('data-badge');
-           const year = app.getAttribute('data-year');
-           
-           console.log('Datos de la aplicación:', { title, genre, description, rating, badge, year }); // Debug
-           
-           if (title && genre && description && rating && badge && year) {
-             // Mostrar detalles de la aplicación
-             console.log('Llamando a showDetails para:', title); // Debug
-             showDetails(title, genre, description, rating, badge, year);
-           } else {
-             console.log('Faltan datos en la aplicación:', e.target.getAttribute('data-title')); // Debug
-           }
-         }
-       });
-       
-       // Evento adicional para asegurar que funcione con las tarjetas y aplicaciones
-         document.addEventListener('click', function(e) {
-           if (e.target.closest('.card')) {
-             const card = e.target.closest('.card');
-             console.log('Click en tarjeta:', card.getAttribute('data-title')); // Debug
-             
-             // Simular el foco si no está enfocada
-             if (!card.classList.contains('nav-focused')) {
-               card.focus();
-             }
-           }
-           
-           if (e.target.closest('.app')) {
-             const app = e.target.closest('.app');
-             console.log('Click en aplicación:', app.getAttribute('data-title')); // Debug
-             
-             // Simular el foco si no está enfocada
-             if (!app.classList.contains('nav-focused')) {
-               app.focus();
-             }
-           }
-         });
-         
-         // Evento para ocultar el overlay cuando se pierde el foco
-         document.addEventListener('focusout', function(e) {
-           if (e.target.classList.contains('card') || e.target.classList.contains('app')) {
-             // Solo ocultar si el nuevo foco no es otra tarjeta o aplicación
-             setTimeout(() => {
-               const activeElement = document.activeElement;
-               if (!activeElement || (!activeElement.classList.contains('card') && !activeElement.classList.contains('app'))) {
-                 hideDetails();
-               }
-             }, 100);
-           }
-         });
+        // Ver partido
+        async function watchMatch(matchId) {
+            const match = currentMatches.find(m => m.id === matchId);
+            if (!match) return;
+            
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const streamPlayer = document.getElementById('streamPlayer');
+            
+            modalTitle.textContent = match.title;
+            
+            // Agregar encabezado de streams al modal
+            const streamHeader = document.createElement('div');
+            streamHeader.style.cssText = 'text-align: center; margin-bottom: 20px; padding: 20px 20px 0 20px;';
+            streamHeader.innerHTML = `
+                <h3 style="color: #00ff88; margin-bottom: 10px;">📺 Streams Disponibles</h3>
+                <p style="color: #888; font-size: 0.9rem;">Selecciona el stream que prefieras</p>
+            `;
+            
+            // Insertar el encabezado después del header del modal
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.insertBefore(streamHeader, streamPlayer);
+            
+            streamPlayer.innerHTML = '<p>Cargando stream...</p>';
+            modal.style.display = 'block';
+            
+            try {
+                // Mostrar las fuentes de streaming disponibles
+                if (match.sources && match.sources.length > 0) {
+                    let streamsHTML = '';
+                    
+                    let streamCounter = 1;
+                    let allStreams = [];
+                    
+                    // Cargar todos los streams de cada fuente
+                    for (let i = 0; i < match.sources.length; i++) {
+                        const source = match.sources[i];
+                        
+                        try {
+                            const response = await fetch(`https://streamed.pk/api/stream/${source.source}/${source.id}`);
+                            const streams = await response.json();
+                            
+                            if (streams && streams.length > 0) {
+                                // Agregar streams a la lista general
+                                streams.forEach(stream => {
+                                    allStreams.push({
+                                        ...stream,
+                                        source: source.source,
+                                        sourceId: source.id,
+                                        streamNumber: streamCounter++
+                                    });
+                                });
+                            }
+                        } catch (error) {
+                            console.error(`Error loading streams for ${source.source}:`, error);
+                        }
+                    }
+                    
+                    // Ordenar streams por espectadores (más viewers primero)
+                    allStreams.sort((a, b) => (b.viewers || 0) - (a.viewers || 0));
+                    
+                    // Mostrar todos los streams en una lista ordenada
+                    if (allStreams.length > 0) {
+                        streamsHTML += `
+                            <div style="max-height: 500px; overflow-y: auto; border: 1px solid #444; border-radius: 8px; background: #1a1a1a; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                        `;
+                        
+                        // Agregar botón de recomendación inteligente como PRIMER elemento
+                        streamsHTML += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #333; transition: background 0.3s; background: linear-gradient(135deg, #2a1a0a, #1a0f05);" 
+                                 onmouseover="this.style.background='linear-gradient(135deg, #3a2a1a, #2a1f15)'" 
+                                 onmouseout="this.style.background='linear-gradient(135deg, #2a1a0a, #1a0f05)'">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
+                                        <span style="color: #ff6b35; font-weight: bold; font-size: 1.1rem;">#0</span>
+                                        <span style="color: #888; font-size: 0.7rem;">AI</span>
+                                    </div>
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                            <span style="color: white; font-weight: 500;">🎯 Recomendación Inteligente</span>
+                                            <span style="background: #ff6b35; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">AUTO</span>
+                                            <span style="font-size: 1.2rem;">🚀</span>
+                                        </div>
+                                        <div style="color: #888; font-size: 0.8rem;">
+                                            🤖 Selección automática del mejor stream
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="openBestStream('${matchId}', '${match.title}')" 
+                                        style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s;"
+                                        onmouseover="this.style.transform='scale(1.05)'" 
+                                        onmouseout="this.style.transform='scale(1)'">
+                                    ▶️ Abrir
+                                </button>
+                            </div>
+                        `;
+                        
+                        allStreams.forEach((stream, index) => {
+                            const language = stream.language || 'N/A';
+                            const quality = stream.hd ? 'HD' : 'SD';
+                            const viewers = stream.viewers || 0;
+                            const isSpanish = language.toLowerCase() === 'spanish';
+                            const isPopular = viewers > 100;
+                            
+                            // Colores según características
+                            let streamColor = '#00ff88';
+                            let badgeColor = '#333';
+                            let badgeText = '';
+                            
+                            if (isSpanish) {
+                                streamColor = '#ff6b35';
+                                badgeColor = '#ff6b35';
+                                badgeText = '🇪🇸';
+                            } else if (isPopular) {
+                                streamColor = '#00ccff';
+                                badgeColor = '#00ccff';
+                                badgeText = '🔥';
+                            }
+                            
+                            streamsHTML += `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #333; transition: background 0.3s;" 
+                                     onmouseover="this.style.background='#2a2a2a'" 
+                                     onmouseout="this.style.background='transparent'">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
+                                            <span style="color: ${streamColor}; font-weight: bold; font-size: 1.1rem;">#${index + 1}</span>
+                                            <span style="color: #888; font-size: 0.7rem;">${stream.source.toUpperCase()}</span>
+                                        </div>
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                                <span style="color: white; font-weight: 500;">${language}</span>
+                                                <span style="background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${quality}</span>
+                                                ${badgeText ? `<span style="font-size: 1.2rem;">${badgeText}</span>` : ''}
+                                            </div>
+                                            <div style="color: #888; font-size: 0.8rem;">
+                                                👥 ${viewers} espectadores
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button onclick="openSpecificStream('${stream.embedUrl}', '${match.title} - ${stream.source} - Stream ${index + 1}')" 
+                                            style="background: ${streamColor}; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s;"
+                                            onmouseover="this.style.transform='scale(1.05)'" 
+                                            onmouseout="this.style.transform='scale(1)'">
+                                        ▶️ Abrir
+                                    </button>
+                                </div>
+                            `;
+                        });
+                        
+                        streamsHTML += `</div>`;
+                    } else {
+                        streamsHTML += `
+                            <div style="text-align: center; padding: 40px; color: #888;">
+                                <div style="font-size: 3rem; margin-bottom: 15px;">📺</div>
+                                <h4>No hay streams disponibles</h4>
+                                <p>Intenta más tarde o verifica la conexión</p>
+                            </div>
+                        `;
+                    }
+                    
+                    streamPlayer.innerHTML = streamsHTML;
+                } else {
+                    // Fallback: intentar endpoint directo
+                    const response = await fetch(`${API_BASE}/stream/${matchId}`);
+                    if (!response.ok) throw new Error(`Error ${response.status}`);
+                    
+                    const streamData = await response.json();
+                    
+                    if (streamData.stream_url) {
+                        streamPlayer.innerHTML = `
+                            <video controls style="width: 100%; max-width: 600px;">
+                                <source src="${streamData.stream_url}" type="video/mp4">
+                                Tu navegador no soporta video.
+                            </video>
+                            <br><br>
+                            <a href="${streamData.stream_url}" target="_blank" style="color: #00ff88;">
+                                Abrir stream en nueva pestaña
+                            </a>
+                        `;
+                    } else {
+                        streamPlayer.innerHTML = '<p>Stream no disponible</p>';
+                    }
+                }
+            } catch (error) {
+                streamPlayer.innerHTML = `<p>Error cargando stream: ${error.message}</p>`;
+            }
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            const streamHeader = modal.querySelector('div[style*="text-align: center"]');
+            if (streamHeader) {
+                streamHeader.remove();
+            }
+            modal.style.display = 'none';
+        }
+        
+        
+        // Función para abrir un stream específico
+        function openSpecificStream(embedUrl, title) {
+            try {
+                console.log('🎯 === openSpecificStream ===');
+                console.log('🎯 embedUrl:', embedUrl);
+                console.log('🎯 title:', title);
+                console.log('🎯 embedUrl válida:', embedUrl && embedUrl !== 'undefined');
+                
+                if (embedUrl && embedUrl !== 'undefined') {
+                    console.log('🎯 Llamando a openStreamOverlay...');
+                    openStreamOverlay(embedUrl, title);
+                } else {
+                    console.error('❌ URL de stream no válida en openSpecificStream');
+                    showError('URL de stream no válida');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en openSpecificStream:', error);
+                showError('Error al abrir stream específico');
+            }
+        }
 
-   </script>
- </body>
- </html>
+        // Función para abrir el mejor stream (implementación correcta desde streamed-replica.html)
+        async function openBestStream(matchId, matchTitle) {
+            try {
+                console.log('🎯 Abriendo mejor stream para:', matchTitle);
+                
+                const match = currentMatches.find(m => m.id === matchId);
+                console.log('🔍 Match encontrado:', match);
+                console.log('🔍 Sources del match:', match?.sources);
+                
+                if (!match || !match.sources) {
+                    showError('No hay streams disponibles');
+                    return;
+                }
+                
+                let bestStream = null;
+                let maxViewers = 0;
+                let spanishStream = null;
+                let allStreams = [];
+                
+                // Buscar el stream con más espectadores, priorizando español
+                for (const source of match.sources) {
+                    try {
+                        const response = await fetch(`https://streamed.pk/api/stream/${source.source}/${source.id}`);
+                        const streams = await response.json();
+                        
+                        if (streams && streams.length > 0) {
+                            streams.forEach(stream => {
+                                allStreams.push(stream);
+                                
+                                // Priorizar streams en español
+                                const language = (stream.language || '').toLowerCase();
+                                const embedUrl = (stream.embedUrl || '').toLowerCase();
+                                const isSpanish = language === 'spanish' || embedUrl.includes('spanish');
+                                
+                                console.log(`🔍 Stream ${stream.streamNo}: language="${language}", embedUrl="${embedUrl}", isSpanish=${isSpanish}`);
+                                
+                                if (isSpanish && !spanishStream) {
+                                    spanishStream = stream;
+                                    console.log('✅ Encontrado stream en español:', stream);
+                                }
+                                
+                                // Buscar el stream con más espectadores
+                                if (stream.viewers && stream.viewers > maxViewers) {
+                                    maxViewers = stream.viewers;
+                                    bestStream = stream;
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error loading stream for ${source.source}:`, error);
+                    }
+                }
+                
+                console.log(`📊 Total streams encontrados: ${allStreams.length}`);
+                console.log(`🇪🇸 Stream en español encontrado:`, spanishStream);
+                console.log(`👥 Stream con más espectadores:`, bestStream);
+                
+                // Prioridad: 1) Español, 2) Stream con espectadores, 3) Cualquier stream disponible
+                let finalStream = spanishStream;
+                if (!finalStream && bestStream && bestStream.viewers > 0) {
+                    finalStream = bestStream;
+                }
+                if (!finalStream) {
+                    // Usar cualquier stream disponible (el primero que encuentre)
+                    finalStream = allStreams[0] || bestStream;
+                }
+                
+                if (finalStream && finalStream.embedUrl) {
+                    console.log('✅ === Abriendo mejor stream ===');
+                    console.log('✅ finalStream.embedUrl:', finalStream.embedUrl);
+                    console.log('✅ matchTitle:', matchTitle);
+                    console.log('✅ Llamando a openStreamOverlay...');
+                    openStreamOverlay(finalStream.embedUrl, matchTitle);
+                } else {
+                    console.error('❌ No se encontró un stream válido en openBestStream');
+                    console.log('❌ finalStream:', finalStream);
+                    showError('No se encontró un stream válido');
+                }
+                
+            } catch (error) {
+                console.error('Error opening best stream:', error);
+                showError('Error al abrir stream');
+            }
+        }
+
+        // Función para abrir stream en overlay
+        function openStreamOverlay(url, title = 'Stream') {
+            console.log('🚀 === INICIANDO openStreamOverlay ===');
+            console.log('📺 URL del stream:', url);
+            console.log('📝 Título:', title);
+            
+            if (!url || url === 'undefined') {
+                console.error('❌ URL de stream no válida:', url);
+                showError('URL de stream no válida');
+                return;
+            }
+            
+            const overlay = document.getElementById('streamOverlay');
+            const streamIframe = document.getElementById('streamIframe');
+            const adContainer = document.getElementById('adContainer');
+            const adIframe = document.getElementById('adIframe');
+            const closeAdBtn = document.getElementById('closeAdBtn');
+            const closeStreamBtn = document.getElementById('closeStreamBtn');
+            const adTimer = document.getElementById('adTimer');
+            const countdown = document.getElementById('countdown');
+            
+            console.log('🔍 Elementos encontrados:');
+            console.log('  - overlay:', !!overlay);
+            console.log('  - streamIframe:', !!streamIframe);
+            console.log('  - adContainer:', !!adContainer);
+            console.log('  - adIframe:', !!adIframe);
+            console.log('  - closeAdBtn:', !!closeAdBtn);
+            console.log('  - closeStreamBtn:', !!closeStreamBtn);
+            console.log('  - adTimer:', !!adTimer);
+            console.log('  - countdown:', !!countdown);
+            
+            if (!overlay || !streamIframe) {
+                console.error('❌ Elementos críticos no encontrados');
+                return;
+            }
+            
+            // Limpiar cualquier timer anterior
+            if (window.adTimer) {
+                console.log('🧹 Limpiando timer anterior');
+                clearInterval(window.adTimer);
+            }
+            
+            console.log('🔄 Reseteando elementos al estado inicial...');
+            
+            // Resetear todos los elementos al estado inicial
+            adContainer.style.display = 'block';
+            adTimer.style.display = 'block';
+            closeAdBtn.style.display = 'none';
+            closeStreamBtn.style.display = 'none';
+            streamIframe.style.display = 'none';
+            streamIframe.src = '';
+            
+            console.log('✅ Elementos reseteados');
+            
+            // Resetear el mensaje del timer
+            adTimer.innerHTML = 'Cargando publicidad... <span id="countdown">30</span>s';
+            console.log('📝 Timer HTML regenerado');
+            
+            // Mostrar el overlay
+            overlay.style.display = 'block';
+            console.log('👁️ Overlay mostrado');
+            
+            // Bloquear scroll del body
+            document.body.style.overflow = 'hidden';
+            console.log('🔒 Scroll bloqueado');
+            
+            // Cargar publicidad de Adsterra
+            const adUrl = 'https://www.revenuecpmgate.com/mr0r2hndg?key=78bccdf65220327356e33416cb3393eb';
+            console.log('📢 Cargando publicidad:', adUrl);
+            adIframe.src = adUrl;
+            
+            // Event listeners para el iframe de publicidad
+            adIframe.onload = function() {
+                console.log('✅ Publicidad cargada exitosamente');
+            };
+            
+            adIframe.onerror = function() {
+                console.error('❌ Error cargando publicidad');
+            };
+            
+            // Contador de 30 segundos
+            let seconds = 30;
+            const countdownElement = document.getElementById('countdown');
+            console.log('⏱️ Iniciando contador de 30 segundos');
+            console.log('🔢 Elemento countdown encontrado:', !!countdownElement);
+            
+            if (!countdownElement) {
+                console.error('❌ Elemento countdown no encontrado después de regenerar HTML');
+                return;
+            }
+            
+            countdownElement.textContent = seconds;
+            console.log('🔢 Contador inicializado en:', seconds);
+            
+            window.adTimer = setInterval(() => {
+                seconds--;
+                console.log('⏰ Contador:', seconds);
+                countdownElement.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    console.log('⏰ Contador terminado, limpiando timer');
+                    clearInterval(window.adTimer);
+                    window.adTimer = null;
+                    
+                    // Cambiar el mensaje y mostrar botón cerrar publicidad
+                    adTimer.innerHTML = 'Publicidad lista - Puedes cerrar cuando quieras';
+                    closeAdBtn.style.display = 'block';
+                    console.log('✅ Botón "Cerrar Publicidad" mostrado');
+                    
+                    // Guardar la URL del stream para cuando el usuario cierre la publicidad
+                    window.pendingStreamUrl = url;
+                    console.log('💾 URL del stream guardada:', url);
+                    
+                    console.log('🎬 Publicidad lista, esperando que el usuario cierre');
+                }
+            }, 1000);
+            
+            console.log('🚀 === openStreamOverlay completado ===');
+        }
+
+        // Función para cerrar publicidad y mostrar stream
+        function closeAdAndShowStream() {
+            console.log('🎬 === closeAdAndShowStream ===');
+            
+            const streamIframe = document.getElementById('streamIframe');
+            const adContainer = document.getElementById('adContainer');
+            const adIframe = document.getElementById('adIframe');
+            const closeAdBtn = document.getElementById('closeAdBtn');
+            const closeStreamBtn = document.getElementById('closeStreamBtn');
+            const adTimer = document.getElementById('adTimer');
+            
+            console.log('🔍 Elementos encontrados en closeAdAndShowStream:');
+            console.log('  - streamIframe:', !!streamIframe);
+            console.log('  - adContainer:', !!adContainer);
+            console.log('  - adIframe:', !!adIframe);
+            console.log('  - closeAdBtn:', !!closeAdBtn);
+            console.log('  - closeStreamBtn:', !!closeStreamBtn);
+            console.log('  - adTimer:', !!adTimer);
+            
+            // Ocultar publicidad y mostrar stream
+            adContainer.style.display = 'none';
+            adTimer.style.display = 'none';
+            closeAdBtn.style.display = 'none';
+            closeStreamBtn.style.display = 'block';
+            streamIframe.style.display = 'block';
+            
+            console.log('🔄 Elementos ocultados/mostrados');
+            
+            // Cargar el stream real
+            if (window.pendingStreamUrl) {
+                console.log('📺 Cargando stream real:', window.pendingStreamUrl);
+                streamIframe.src = window.pendingStreamUrl;
+                window.pendingStreamUrl = null;
+                console.log('✅ Stream cargado, URL pendiente limpiada');
+            } else {
+                console.error('❌ No hay URL de stream pendiente');
+            }
+            
+            console.log('🎬 Publicidad cerrada, mostrando stream');
+        }
+
+        // Función para cerrar stream overlay
+        function closeStreamOverlay() {
+            const overlay = document.getElementById('streamOverlay');
+            const streamIframe = document.getElementById('streamIframe');
+            const adIframe = document.getElementById('adIframe');
+            const adContainer = document.getElementById('adContainer');
+            const closeAdBtn = document.getElementById('closeAdBtn');
+            const closeStreamBtn = document.getElementById('closeStreamBtn');
+            const adTimer = document.getElementById('adTimer');
+            
+            // Limpiar timer si existe
+            if (window.adTimer) {
+                clearInterval(window.adTimer);
+                window.adTimer = null;
+            }
+            
+            // Ocultar el overlay
+            overlay.style.display = 'none';
+            
+            // Limpiar los iframes
+            streamIframe.src = '';
+            adIframe.src = '';
+            
+            // Resetear elementos de publicidad
+            adContainer.style.display = 'none';
+            adTimer.style.display = 'none';
+            closeAdBtn.style.display = 'none';
+            closeStreamBtn.style.display = 'none';
+            streamIframe.style.display = 'none';
+            
+            // Limpiar URL pendiente
+            window.pendingStreamUrl = null;
+            
+            // Restaurar scroll del body
+            document.body.style.overflow = 'auto';
+            
+            console.log('🔒 Cerrando stream overlay completamente');
+        }
+        
+        // Poblar filtros
+        function populateFilters(matches, sports = []) {
+            const sportFilter = document.getElementById('sportFilter');
+            const leagueFilter = document.getElementById('leagueFilter');
+            
+            // Limpiar filtros
+            sportFilter.innerHTML = '<option value="">Todas las categorías</option>';
+            leagueFilter.innerHTML = '<option value="">Todas las categorías</option>';
+            
+            // Poblar deportes desde la API
+            if (sports.length > 0) {
+                sports.forEach(sport => {
+                    const option = document.createElement('option');
+                    option.value = sport.id;
+                    option.textContent = sport.name;
+                    sportFilter.appendChild(option);
+                });
+            } else {
+                // Fallback: obtener categorías únicas de los partidos
+                const uniqueCategories = [...new Set(matches.map(m => m.category).filter(Boolean))];
+                uniqueCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    sportFilter.appendChild(option);
+                });
+            }
+            
+            // Obtener categorías únicas para el filtro de liga (usando category como liga)
+            const categories = [...new Set(matches.map(m => m.category).filter(Boolean))];
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                leagueFilter.appendChild(option);
+            });
+        }
+        
+        // Filtrar por deporte
+        async function filterBySport() {
+            const sportId = document.getElementById('sportFilter').value;
+            if (!sportId) {
+                displayMatches(currentMatches);
+                return;
+            }
+            
+            // Si es un ID numérico, hacer llamada a la API
+            if (!isNaN(sportId)) {
+                showLoading(true);
+                try {
+                    const response = await fetch(`${API_BASE}/matches/${sportId}`);
+                    if (!response.ok) throw new Error(`Error ${response.status}`);
+                    
+                    const data = await response.json();
+                    currentMatches = data;
+                    displayMatches(data);
+                } catch (error) {
+                    showError('Error al filtrar por deporte: ' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            } else {
+                // Si es una categoría, filtrar localmente
+                const filtered = currentMatches.filter(match => match.category === sportId);
+                displayMatches(filtered);
+            }
+        }
+        
+        // Filtrar por liga
+        function filterByLeague() {
+            const league = document.getElementById('leagueFilter').value;
+            if (!league) {
+                displayMatches(currentMatches);
+                return;
+            }
+            
+            const filtered = currentMatches.filter(match => match.category === league);
+            displayMatches(filtered);
+        }
+        
+        // Mostrar solo partidos de fútbol
+        function showFootballOnly() {
+            if (currentMatches.length === 0) {
+                showError('Primero carga los partidos');
+                return;
+            }
+            
+            const footballMatches = currentMatches.filter(match => match.category === 'football');
+            displayMatches(footballMatches);
+        }
+        
+        // Cargar todos los deportes disponibles
+        async function loadAllSports() {
+            console.log('=== CARGANDO TODOS LOS DEPORTES ===');
+            showLoading(true);
+            hideError();
+            
+            try {
+                const sportsResponse = await fetch(`${API_BASE}/sports`);
+                if (!sportsResponse.ok) throw new Error(`Error ${sportsResponse.status}`);
+                
+                const sports = await sportsResponse.json();
+                console.log('Todos los deportes:', sports);
+                
+                // Mostrar información de deportes
+                let sportsInfo = 'Deportes disponibles:\n';
+                sports.forEach((sport, index) => {
+                    sportsInfo += `${index + 1}. ${sport.name} (ID: ${sport.id})\n`;
+                });
+                
+                showError(`✅ ${sports.length} deportes encontrados. Revisa la consola para detalles.`);
+                
+                // Cargar partidos de cada deporte para ver cuáles tienen partidos
+                for (const sport of sports) {
+                    try {
+                        const response = await fetch(`${API_BASE}/matches/${sport.id}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log(`${sport.name}: ${data.length} partidos`);
+                        }
+                    } catch (error) {
+                        console.log(`${sport.name}: Error cargando partidos`);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error cargando deportes:', error);
+                showError('Error al cargar deportes: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Probar la API
+        async function testAPI() {
+            console.log('=== PROBANDO API ===');
+            showLoading(true);
+            hideError();
+            
+            try {
+                // Probar endpoint de deportes
+                console.log('Probando /sports...');
+                const sportsResponse = await fetch(`${API_BASE}/sports`);
+                console.log('Sports response:', sportsResponse.status, sportsResponse.ok);
+                
+                if (sportsResponse.ok) {
+                    const sports = await sportsResponse.json();
+                    console.log('Sports data:', sports);
+                    showError(`✅ Deportes OK: ${sports.length} deportes encontrados`);
+                } else {
+                    showError(`❌ Error deportes: ${sportsResponse.status}`);
+                }
+                
+                // Probar endpoint de partidos en vivo
+                console.log('Probando /matches/live...');
+                const liveResponse = await fetch(`${API_BASE}/matches/live`);
+                console.log('Live response:', liveResponse.status, liveResponse.ok);
+                
+                if (liveResponse.ok) {
+                    const liveData = await liveResponse.json();
+                    console.log('Live data:', liveData);
+                    showError(`✅ Partidos en vivo OK: ${liveData.length} partidos encontrados`);
+                } else {
+                    showError(`❌ Error partidos en vivo: ${liveResponse.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Error en prueba de API:', error);
+                showError(`❌ Error de conexión: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Mostrar loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // Mostrar error
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // Ocultar error
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Event listener para cerrar stream overlay con Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const overlay = document.getElementById('streamOverlay');
+                if (overlay && overlay.style.display === 'block') {
+                    closeStreamOverlay();
+                }
+            }
+        });
+        
+        // Buscar por equipo
+        function searchByTeam() {
+            const searchTerm = document.getElementById('teamSearch').value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                // Si no hay término de búsqueda, mostrar todos los partidos del día
+                displayMatches(currentMatches);
+                return;
+            }
+            
+            console.log('Buscando equipo:', searchTerm);
+            
+            // Filtrar partidos que contengan el término de búsqueda en el título o equipos
+            const filteredMatches = currentMatches.filter(match => {
+                if (!match.title) return false;
+                
+                const title = match.title.toLowerCase();
+                const homeTeam = match.teams?.home?.name?.toLowerCase() || '';
+                const awayTeam = match.teams?.away?.name?.toLowerCase() || '';
+                
+                // Buscar en título, equipos home y away
+                return title.includes(searchTerm) || 
+                       homeTeam.includes(searchTerm) || 
+                       awayTeam.includes(searchTerm);
+            });
+            
+            console.log(`Encontrados ${filteredMatches.length} partidos para "${searchTerm}"`);
+            
+            // Mostrar resultados
+            if (filteredMatches.length === 0) {
+                const container = document.getElementById('matches');
+                container.innerHTML = `<div class="error">No se encontraron partidos para "${searchTerm}"</div>`;
+            } else {
+                displayMatches(filteredMatches);
+            }
+        }
+        
+        // Limpiar búsqueda
+        function clearSearch() {
+            document.getElementById('teamSearch').value = '';
+            displayMatches(currentMatches);
+        }
+        
+        // Cargar partidos al iniciar
+        window.onload = function() {
+            loadMatches();
+        }
+    </script>
+</body>
+</html>
