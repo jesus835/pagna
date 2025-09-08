@@ -503,6 +503,15 @@
             height: 100%;
             object-fit: cover;
         }
+        
+        /* Ensure video controls are always visible */
+        .video-player::-webkit-media-controls {
+            display: flex !important;
+        }
+        
+        .video-player::-webkit-media-controls-panel {
+            display: flex !important;
+        }
 
         .close-button {
             position: absolute;
@@ -1012,6 +1021,20 @@
                 position: absolute;
                 top: 0;
                 left: 0;
+            }
+            
+            .video-player::-webkit-media-controls-panel {
+                display: flex !important;
+                opacity: 1 !important;
+                background: rgba(0, 0, 0, 0.8) !important;
+            }
+            
+            .video-player::-webkit-media-controls-play-button,
+            .video-player::-webkit-media-controls-fullscreen-button,
+            .video-player::-webkit-media-controls-volume-slider,
+            .video-player::-webkit-media-controls-timeline {
+                display: block !important;
+                opacity: 1 !important;
             }
 
             .video-info {
@@ -1647,6 +1670,7 @@
             videoOverlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             isVideoOpen = true;
+            
             
             // Verificar si el stream está disponible
             const streamActive = await updateEventCountdown();
