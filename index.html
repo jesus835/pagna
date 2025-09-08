@@ -2,1323 +2,1625 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streamed - Partidos en Vivo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Guatemala vs Panamá - Partido EN VIVO</title>
     <style>
+        @font-face {
+            font-family: 'TT Lakes Neue';
+            src: url('./FONTS/TT Lakes Neue Trial Condensed ExtraBold Italic.ttf') format('truetype');
+            font-weight: 800;
+            font-style: italic;
+            font-display: swap;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: Arial, sans-serif;
-            background: #1a1a1a;
+            font-family: 'TT Lakes Neue', sans-serif;
+            background-color: #000;
             color: white;
-            line-height: 1.6;
+            overflow-x: hidden;
+            height: 100vh;
+            width: 100vw;
+            aspect-ratio: 16/9;
+            margin: 0 auto;
         }
-        
-        .container {
+
+        html {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: #000;
+            padding: 8px 0;
+            position: relative;
+            z-index: 100;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background: #2d2d2d;
-            padding: 20px 0;
-            margin-bottom: 30px;
-            border-radius: 10px;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #00ff88;
-            font-size: 2.5rem;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            background: #00ff88;
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: #00cc6a;
-        }
-        
-        select {
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            padding: 12px;
-            border-radius: 5px;
-            min-width: 150px;
-        }
-        
-        #teamSearch {
-            min-width: 200px;
-            transition: all 0.3s ease;
-        }
-        
-        #teamSearch:focus {
-            outline: none;
-            border-color: #ff6b35;
-            box-shadow: 0 0 5px rgba(255, 107, 53, 0.3);
-        }
-        
-        #teamSearch::placeholder {
-            color: #888;
-        }
-        
-        .matches {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .match {
-            background: #2d2d2d;
-            border-radius: 10px;
-            padding: 20px;
-            border: 1px solid #444;
-        }
-        
-        .match-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            padding: 0 20px;
+            position: relative;
         }
-        
-        .league {
-            background: #00ff88;
-            color: #000;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .status.live {
-            background: #ff4444;
-            color: white;
-        }
-        
-        .status.upcoming {
-            background: #ffaa00;
-            color: #000;
-        }
-        
-        .status.finished {
-            background: #666;
-            color: white;
-        }
-        
-        .teams {
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .team {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 10px 0;
-            padding: 10px;
-            background: #333;
-            border-radius: 5px;
-        }
-        
-        .score {
-            background: #00ff88;
-            color: #000;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            min-width: 30px;
-            text-align: center;
-        }
-        
-        .watch-btn {
-            width: 100%;
-            background: #0066cc;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        
-        .watch-btn:hover {
-            background: #0052a3;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2rem;
-        }
-        
-        .error {
-            background: #ff4444;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-        }
-        
-        .modal-content {
-            background: #2d2d2d;
-            margin: 0;
-            padding: 0;
-            border-radius: 0;
-            width: 100%;
-            height: 100vh;
-            max-width: none;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 20px 20px 15px 20px;
-            border-bottom: 2px solid #444;
-        }
-        
-        .close {
-            color: #aaa;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            background: #444;
-            border-radius: 50%;
+
+        .logo {
             width: 40px;
             height: 40px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iMjAiIGZpbGw9IiNGRkY1MDAiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTEyIDJMM1Y3TDEyIDEyTDIxIDdMMTIgMloiIGZpbGw9IiNEQzE0M0MiLz4KPHBhdGggZD0iTTMgN1YxN0wxMiAyMkwyMSAxN1Y3IiBmaWxsPSIjREM0MzNDIi8+Cjwvc3ZnPgo8L3N2Zz4=') no-repeat center;
+            background-size: contain;
+        }
+
+        .nav {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-item {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-item:hover {
+            color: #DC143C;
+        }
+
+        .nav-item.active {
+            color: #00BFFF;
+        }
+
+        /* Dropdown Navigation */
+        .nav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            min-width: 120px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            list-style: none;
+            padding: 5px 0;
+            margin: 5px 0 0 0;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 0;
+        }
+
+        .dropdown-menu .nav-item {
+            display: block;
+            padding: 8px 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-menu .nav-item:hover {
+            background-color: #333;
+            color: #00BFFF;
+        }
+
+        /* Nav dropdown positioning */
+        .nav .nav-dropdown {
+            position: relative;
+        }
+
+        .nav .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .search-icon, .user-icon {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: #E8E8E8;
+            height: calc(100vh - 60px);
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .content-wrapper {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 45% 55%;
+            align-items: center;
+            gap: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .text-content {
+            z-index: 10;
+        }
+
+        .main-heading {
+            font-family: 'TT Lakes Neue', sans-serif;
+            font-size: 6rem;
+            font-weight: 800;
+            font-style: italic;
+            line-height: 0.7;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: #333;
+        }
+
+        .vs-large {
+            font-family: 'TT Lakes Neue', sans-serif;
+            font-size: 9rem;
+            font-weight: 800;
+            font-style: italic;
+            color: #333;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .live-button {
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-family: 'TT Lakes Neue', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .live-button:hover {
+            background: #555;
+            transform: translateY(-1px);
+        }
+
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-left: 8px solid white;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            margin-left: 2px;
+        }
+
+        .player-image {
+            position: relative;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
         }
-        
-        .close:hover {
+
+        .player-image img {
+            height: 85%;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+        }
+
+        .small-player-image {
+            position: absolute;
+            top: 80px;
+            right: 80px;
+            width: 100px;
+            height: 130px;
+            z-index: 20;
+        }
+
+        .small-player-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 3px solid white;
+            border-radius: 8px;
+        }
+
+        /* Match Info */
+        .match-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            padding: 30px 0;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .match-content {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            width: 100%;
+        }
+
+        .match-date {
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .match-day {
+            font-size: 24px;
+            font-weight: 700;
             color: white;
-            background: #ff4444;
+        }
+
+        .match-details {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .nav-dots {
+            justify-self: end;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .team-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .team-name {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .match-time {
+            text-align: center;
+            margin: 0 20px;
+        }
+
+        .time-large {
+            font-size: 45px;
+            font-weight: 700;
+            color: white;
+            display: block;
+            line-height: 1;
+        }
+
+        .stadium-name {
+            font-size: 12px;
+            font-weight: 400;
+            color: #999;
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .match-venue {
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .dot.active {
+            background: white;
+        }
+
+        /* Navigation arrows */
+        .nav-arrows {
+            position: absolute;
+            bottom: 120px;
+            right: 80px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .arrow {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 16px;
+        }
+
+        .arrow:hover {
+            border-color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Background text decoration */
+        .background-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'TT Lakes Neue', sans-serif;
+            font-size: 15rem;
+            font-weight: 800;
+            font-style: italic;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.08);
+            text-stroke: 1px rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            line-height: 0.7;
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Number overlay */
+        .number-overlay {
+            position: absolute;
+            top: 50%;
+            right: 120px;
+            transform: translateY(-50%);
+            font-size: 150px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.1);
+            z-index: 1;
+            line-height: 1;
+        }
+
+        /* Independent Santis Image */
+        .santis-independent {
+            position: fixed;
+            top: 52%;
+            left: 67%;
+            transform: translate(-50%, -50%);
+            width: 780px;
+            height: auto;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 1;
+        }
+
+        .santis-independent img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            filter: saturate(1.1);
+        }
+
+        /* Video Overlay */
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            position: relative;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            transition: all 0.3s ease;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .close-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            color: #00BFFF;
             transform: scale(1.1);
         }
-        
-        
-        .stream-player {
-            background: #000;
-            border-radius: 5px;
-            padding: 20px;
-            text-align: center;
-            min-height: 200px;
+
+        .video-info {
+            position: absolute;
+            bottom: 20%;
+            left: 20px;
+            color: white;
+            font-family: 'TT Lakes Neue', sans-serif;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            transition: opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .video-controls-hidden .close-button,
+        .video-controls-hidden .video-info {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Ad Banner inside video overlay */
+        .ad-banner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 15px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+            z-index: 10001;
+            display: none;
+            border-top: 2px solid #00BFFF;
+        }
+
+        .ad-banner iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .ad-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00BFFF;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10002;
+            font-family: 'TT Lakes Neue', sans-serif;
+            min-width: 60px;
         }
-        
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
+
+        .ad-counter-text {
+            color: #00BFFF;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .video-description {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Event Countdown */
+        .event-countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            font-family: 'TT Lakes Neue', sans-serif;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #00BFFF;
+        }
+
+        .countdown-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #00BFFF;
+        }
+
+        .countdown-timer {
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .countdown-subtitle {
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .event-details {
+            font-size: 14px;
+            color: #999;
+        }
+
+
+        /* Responsive */
+        @media (max-width: 1366px) {
+            .main-heading {
+                font-size: 5rem;
             }
             
-            .matches {
+            .vs-large {
+                font-size: 7rem;
+            }
+            
+            .background-text {
+                font-size: 12rem;
+            }
+            
+            .content-wrapper {
+                padding: 0 30px;
+            }
+        }
+
+        /* Tablet and small desktop */
+        @media (max-width: 1024px) {
+            .main-heading {
+                font-size: 4rem;
+            }
+            
+            .vs-large {
+                font-size: 6rem;
+            }
+            
+            .background-text {
+                font-size: 10rem;
+            }
+            
+            .santis-independent {
+                width: 500px;
+                left: 70%;
+                top: 50%;
+            }
+        }
+
+        /* Mobile landscape (pantallas anchas y cortas) */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .header {
+                height: 50px;
+                padding: 5px 0;
+            }
+            
+            .main-content {
+                height: calc(100vh - 50px);
+            }
+            
+            .content-wrapper {
+                grid-template-columns: 45% 55%;
+                padding: 0 15px;
+                gap: 10px;
+            }
+
+            .main-heading {
+                font-size: 2.8rem;
+                margin-bottom: 15px;
+            }
+            
+            .vs-large {
+                font-size: 4rem;
+                margin: 5px 0;
+            }
+
+            .background-text {
+                font-size: 6rem;
+            }
+
+            .live-button {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .match-info {
+                height: 60px;
+                padding: 10px 0;
+            }
+
+            .match-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 15px;
+                gap: 10px;
+            }
+
+            /* Compact date section for landscape */
+            .match-date-section {
+                min-width: 120px;
+            }
+
+            .match-date {
+                font-size: 9px;
+                margin-bottom: 2px;
+            }
+
+            .match-day {
+                font-size: 11px;
+            }
+
+            /* Compact match details for landscape */
+            .match-details {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                flex: 1;
+            }
+
+            .team {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                min-width: 70px;
+            }
+
+            .team-logo {
+                width: 30px;
+                height: 30px;
+            }
+
+            .team-name {
+                font-size: 10px;
+                font-weight: 600;
+            }
+
+            .match-time {
+                text-align: center;
+                margin: 0 8px;
+                min-width: 60px;
+            }
+
+            .time-large {
+                font-size: 20px;
+                line-height: 1;
+            }
+
+            .stadium-name {
+                font-size: 8px;
+                margin-top: 1px;
+            }
+
+            /* Hide nav dots on landscape for space */
+            .nav-dots {
+                display: none;
+            }
+
+            .santis-independent {
+                width: 300px;
+                left: 75%;
+                top: 52%;
+                display: block;
+                position: fixed;
+                z-index: 1;
+            }
+
+            /* Navigation mobile landscape */
+            .nav {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                margin-top: 3px;
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                font-size: 10px;
+                padding: 3px 6px;
+                white-space: nowrap;
+            }
+            
+            /* Mobile dropdown styles landscape */
+            .dropdown-menu {
+                min-width: 100px;
+                font-size: 10px;
+            }
+            
+            .dropdown-menu .nav-item {
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+        }
+
+        /* Mobile portrait (pantallas altas y angostas) */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .content-wrapper {
                 grid-template-columns: 1fr;
+                gap: 20px;
+                text-align: center;
+                padding: 0 20px;
+            }
+
+            .main-heading {
+                font-size: 3.5rem;
+                margin-bottom: 25px;
             }
             
-            h1 {
-                font-size: 2rem;
+            .vs-large {
+                font-size: 5rem;
+            }
+
+            .background-text {
+                font-size: 8rem;
+                line-height: 0.8;
+            }
+
+            .live-button {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+
+            .santis-independent {
+                width: 280px;
+                left: 50%;
+                top: 70%;
+                display: block;
+                position: fixed;
+                z-index: 1;
+            }
+
+            .nav {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                margin-top: 5px;
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                font-size: 11px;
+                padding: 4px 8px;
+                white-space: nowrap;
+            }
+            
+            /* Mobile dropdown styles portrait */
+            .dropdown-menu {
+                min-width: 100px;
+                font-size: 11px;
+            }
+            
+            .dropdown-menu .nav-item {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            /* Mobile match-content optimization */
+            .match-info {
+                height: 90px;
+                padding: 15px 0;
+            }
+
+            .match-content {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0 10px;
+                gap: 0;
+            }
+
+            /* Hide date section on mobile portrait */
+            .match-date-section {
+                display: none;
+            }
+
+            /* Hide nav dots on mobile portrait */
+            .nav-dots {
+                display: none;
+            }
+
+            .match-details {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                width: 100%;
+            }
+
+            .team {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                min-width: 80px;
+            }
+
+            .team-logo {
+                width: 40px;
+                height: 40px;
+            }
+
+            .team-name {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+
+            .match-time {
+                text-align: center;
+                margin: 0 10px;
+                min-width: 80px;
+            }
+
+            .time-large {
+                font-size: 24px;
+                font-weight: 700;
+                color: white;
+                display: block;
+                line-height: 1;
+            }
+
+            .stadium-name {
+                font-size: 9px;
+                font-weight: 400;
+                color: #999;
+                text-transform: uppercase;
+                margin-top: 2px;
+                display: block;
+            }
+
+            .number-overlay {
+                display: none;
+            }
+
+            .nav-arrows {
+                bottom: 100px;
+                right: 20px;
+            }
+        }
+
+        /* Video overlay mobile optimizations */
+        @media (max-width: 768px) {
+            .video-info {
+                bottom: 15%;
+                left: 15px;
+                padding: 10px 15px;
+            }
+
+            .video-title {
+                font-size: 16px;
+            }
+
+            .video-description {
+                font-size: 12px;
+            }
+
+            .close-button {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .ad-banner {
+                padding: 10px;
+                min-height: 60px;
+            }
+
+            .ad-counter {
+                top: 8px;
+                right: 8px;
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 50px;
+            }
+
+            .event-countdown {
+                padding: 25px;
+                margin: 0 15px;
+            }
+
+            .countdown-title {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .countdown-timer {
+                font-size: 32px;
+                margin-bottom: 10px;
+            }
+
+            .countdown-subtitle {
+                font-size: 14px;
+            }
+
+            .event-details {
+                font-size: 12px;
+            }
+        }
+
+        /* Ultra small screens */
+        @media (max-width: 480px) {
+            .main-heading {
+                font-size: 2.8rem;
+            }
+            
+            .vs-large {
+                font-size: 4rem;
+            }
+
+            .background-text {
+                font-size: 6rem;
+            }
+
+            .santis-independent {
+                width: 220px;
+            }
+
+            .live-button {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            .match-content {
+                padding: 0 10px;
+            }
+
+            .team-logo {
+                width: 30px;
+                height: 30px;
+            }
+
+            .time-large {
+                font-size: 20px;
+            }
+
+            .nav-item {
+                font-size: 11px;
+            }
+        }
+
+        /* Desktop/TV 16:9 forced layout */
+        @media (min-width: 769px) {
+            .main-content {
+                height: calc(100vh - 60px);
+            }
+            
+            .content-wrapper {
+                max-height: 100%;
+                align-items: center;
+            }
+            
+            /* Perfect 16:9 proportions for all desktop elements */
+            .main-heading {
+                font-size: 6rem;
+            }
+            
+            .vs-large {
+                font-size: 9rem;
+            }
+            
+            .background-text {
+                font-size: 15rem;
+            }
+            
+            .santis-independent {
+                width: 780px;
+                left: 67%;
+                top: 52%;
+            }
+            
+            .match-info {
+                height: 120px;
+                padding: 30px 0;
+            }
+            
+            .team-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .time-large {
+                font-size: 45px;
+            }
+        }
+
+        /* iPhone X and similar (notch devices) */
+        @media only screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+            .header {
+                padding-top: env(safe-area-inset-top);
+            }
+            
+            .match-info {
+                padding-bottom: env(safe-area-inset-bottom);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🏆 Futbol Libre - Partidos en Vivo</h1>
-        </header>
-        
-        <div class="controls">
-            <button onclick="loadMatches()">Cargar Partidos</button>
-            <button onclick="loadLiveMatches()">Solo En Vivo</button>
-            <button onclick="showFootballOnly()">Solo Fútbol</button>
-            <button onclick="loadAllSports()">Ver Todos los Deportes</button>
-            <input type="text" id="teamSearch" placeholder="Buscar por equipo (ej: Barcelona)" onkeyup="searchByTeam()" style="padding: 8px; border: 1px solid #444; border-radius: 4px; background: #333; color: white; margin: 0 5px;">
-            <button onclick="clearSearch()" style="background: #666; color: white; border: 1px solid #666; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Limpiar</button>
-            <select id="sportFilter" onchange="filterBySport()">
-                <option value="">Todas las categorías</option>
-            </select>
-            <select id="leagueFilter" onchange="filterByLeague()">
-                <option value="">Todas las categorías</option>
-            </select>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <nav>
+                <ul class="nav">
+                    <li><a href="#" class="nav-item">Noticias</a></li>
+                    <li><a href="#" class="nav-item active">PARTIDOS</a></li>
+                    <li><a href="#" class="nav-item">EN VIVO</a></li>
+                    <li class="nav-dropdown">
+                        <a href="#" class="nav-item dropdown-toggle">MÁS ▼</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="nav-item">HOMBRES</a></li>
+                            <li><a href="#" class="nav-item">ACADEMIA</a></li>
+                            <li><a href="#" class="nav-item">TIENDA</a></li>
+                            <li><a href="#" class="nav-item">AFICIONADOS</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
         </div>
-        
-        <div id="loading" class="loading" style="display: none;">
-            Cargando partidos...
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="background-text">
+            GUATEMALA<br>VS<br>PANAMA
         </div>
-        
-        <div id="error" class="error" style="display: none;"></div>
-        
-        <div id="matches" class="matches">
-            <!-- Los partidos se cargarán aquí -->
-        </div>
-    </div>
-    
-    <!-- Modal para ver stream -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Ver Partido</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
+
+        <div class="content-wrapper">
+            <div class="text-content">
+                <h1 class="main-heading">
+                    PANAMA<br>
+                    <span class="vs-large">VS</span>
+                    GUATEMALA
+                </h1>
+                <a href="#" class="live-button" id="openVideoBtn">
+                    <span class="play-icon"></span>
+                    VER EN VIVO
+                </a>
             </div>
-            <div class="stream-player" id="streamPlayer">
-                <!-- Reproductor de video -->
+            
+            <div class="player-image">
             </div>
         </div>
-    </div>
-    
-    <!-- Stream Overlay -->
-    <div id="streamOverlay" class="stream-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000;">
-        <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #111; color: #fff;">
-                <div style="font-weight: 700;">Stream en Vivo</div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div id="adTimer" style="color: #ff6b35; font-weight: 700; display: none;">Cargando publicidad... <span id="countdown">5</span>s</div>
-                    <button id="closeAdBtn" onclick="closeAdAndShowStream()" style="background: #ff6b35; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: none;">Cerrar Publicidad</button>
-                    <button id="closeStreamBtn" onclick="closeStreamOverlay()" style="background: #ff6b35; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: none;">Cerrar Stream</button>
+
+
+        <div class="number-overlay">07</div>
+
+        <div class="nav-arrows">
+            <div class="arrow">‹</div>
+            <div class="arrow">›</div>
+        </div>
+
+        <!-- Match Info -->
+        <div class="match-info">
+            <div class="match-content">
+                <div class="match-date-section">
+                    <div class="match-date">Próximo partido - Lunes</div>
+                    <div class="match-day">8 SEPTIEMBRE</div>
+                </div>
+                
+                <div class="match-details">
+                    <div class="team">
+                        <div class="team-name">GUATEMALA</div>
+                        <div class="team-logo">
+                            <img src="./images/guatemala.png" alt="Guatemala">
+                        </div>
+                    </div>
+                    
+                    <div class="match-time">
+                        <span class="time-large">7:30</span>
+                        <span class="stadium-name">Rommel Fernández</span>
+                    </div>
+                    
+                    <div class="team">
+                        <div class="team-logo">
+                            <img src="./images/panama.png" alt="Panama">
+                        </div>
+                        <div class="team-name">PANAMA</div>
+                    </div>
+                </div>
+                
+                <div class="nav-dots">
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
                 </div>
             </div>
-            <div id="adContainer" style="flex: 1; width: 100%; background: #000; display: none;">
-                <iframe id="adIframe" src="" style="width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+        </div>
+    </main>
+
+    <!-- Independent Santis Image -->
+    <div class="santis-independent">
+        <img src="./images/SANTIS.png" alt="Santis">
+    </div>
+
+    <!-- Video Overlay -->
+    <div class="video-overlay" id="videoOverlay">
+        <div class="video-container">
+            <button class="close-button" id="closeVideoBtn">✕</button>
+            <video class="video-player" id="videoPlayer" controls autoplay>
+                <source src="" type="application/x-mpegURL">
+                Tu navegador no soporta el elemento video.
+            </video>
+            
+            <!-- Event Countdown (shows when no stream) -->
+            <div class="event-countdown" id="eventCountdown" style="display: none;">
+                <div class="countdown-title">El evento empezará en:</div>
+                <div class="countdown-timer" id="countdownDisplay">--:--:--</div>
+                <div class="countdown-subtitle">Guatemala vs Panamá</div>
+                <div class="event-details">Hoy - 7:30 PM | Estadio Rommel Fernández</div>
             </div>
-            <iframe id="streamIframe" src="" style="flex: 1; width: 100%; border: 0; background: #000; display: none;" allowfullscreen></iframe>
+            <div class="video-info">
+                <div class="video-title">Guatemala vs Panamá - EN VIVO</div>
+                <div class="video-description">Transmisión en vivo del partido</div>
+            </div>
+            
+            <!-- Ad Banner inside video overlay -->
+            <div class="ad-banner" id="adBanner">
+                <iframe src="https://www.revenuecpmgate.com/mr0r2hndg?key=78bccdf65220327356e33416cb3393eb" 
+                        width="100%" 
+                        height="100%" 
+                        frameborder="0" 
+                        style="min-height: 80px;">
+                </iframe>
+                <div class="ad-counter" id="adCounter">
+                    <span class="ad-counter-text">Se cierra en:</span>
+                    <span id="countdownNumber">15</span>
+                </div>
+            </div>
         </div>
     </div>
-    
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        // Configuración de la API de Streamed
-        const API_BASE = 'https://streamed.pk/api';
-        let currentMatches = [];
-        
-        // Cargar partidos
-        async function loadMatches() {
-            showLoading(true);
-            hideError();
-            
-            try {
-                console.log('=== INICIANDO CARGA DE PARTIDOS ===');
-                console.log('API_BASE:', API_BASE);
-                
-                // Primero obtener deportes disponibles
-                console.log('Obteniendo deportes...');
-                const sportsResponse = await fetch(`${API_BASE}/sports`);
-                console.log('Respuesta deportes:', sportsResponse.status, sportsResponse.ok);
-                
-                if (!sportsResponse.ok) {
-                    throw new Error(`Error ${sportsResponse.status}: ${sportsResponse.statusText}`);
-                }
-                
-                const sports = await sportsResponse.json();
-                console.log('Deportes obtenidos:', sports);
-                
-                if (sports.length === 0) {
-                    showError('No hay deportes disponibles');
-                    return;
-                }
-                
-                // Buscar fútbol primero, si no existe usar el primer deporte
-                let selectedSport = sports.find(sport => sport.id === 'football' || sport.name.toLowerCase().includes('football') || sport.name.toLowerCase().includes('soccer'));
-                if (!selectedSport) {
-                    selectedSport = sports[0];
-                }
-                
-                console.log('Deporte seleccionado:', selectedSport);
-                console.log('Cargando partidos para deporte ID:', selectedSport.id);
-                
-                const response = await fetch(`${API_BASE}/matches/${selectedSport.id}`);
-                console.log('Respuesta partidos:', response.status, response.ok);
-                
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Partidos obtenidos:', data);
-                console.log('Cantidad de partidos:', data.length);
-                
-                currentMatches = data;
-                displayMatches(data);
-                populateFilters(data, sports);
-            } catch (error) {
-                console.error('Error completo:', error);
-                showError('Error al cargar partidos: ' + error.message);
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Cargar solo partidos en vivo
-        async function loadLiveMatches() {
-            showLoading(true);
-            hideError();
-            
-            try {
-                console.log('=== CARGANDO PARTIDOS EN VIVO ===');
-                console.log('URL:', `${API_BASE}/matches/live`);
-                
-                const response = await fetch(`${API_BASE}/matches/live`);
-                console.log('Respuesta partidos en vivo:', response.status, response.ok);
-                
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Partidos en vivo obtenidos:', data);
-                console.log('Cantidad de partidos en vivo:', data.length);
-                
-                currentMatches = data;
-                displayMatches(data);
-                
-                // Obtener deportes para los filtros
-                const sportsResponse = await fetch(`${API_BASE}/sports`);
-                const sports = await sportsResponse.json();
-                populateFilters(data, sports);
-            } catch (error) {
-                console.error('Error cargando partidos en vivo:', error);
-                showError('Error al cargar partidos en vivo: ' + error.message);
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Mostrar partidos
-        function displayMatches(matches) {
-            const container = document.getElementById('matches');
-            container.innerHTML = '';
-            
-            if (!matches || matches.length === 0) {
-                container.innerHTML = '<div class="error">No hay partidos disponibles</div>';
-                return;
-            }
-            
-            // Filtrar solo partidos del día actual
-            const today = new Date();
-            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-            const todayEnd = todayStart + (24 * 60 * 60 * 1000); // 24 horas después
-            
-            const todayMatches = matches.filter(match => {
-                // Incluir partidos en vivo (fecha = 0)
-                if (match.date === 0) return true;
-                
-                // Incluir partidos del día actual
-                return match.date >= todayStart && match.date < todayEnd;
+        // Navegación de dots
+        document.querySelectorAll('.dot').forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+                dot.classList.add('active');
             });
-            
-            console.log(`Partidos del día: ${todayMatches.length} de ${matches.length} total`);
-            console.log('Fecha actual:', today.toLocaleDateString('es-ES'));
-            
-            // Debug: mostrar estructura de datos en consola
-            console.log('Estructura de datos de partidos:', todayMatches);
-            if (todayMatches.length > 0) {
-                console.log('Ejemplo de partido:', todayMatches[0]);
-                console.log('Campos disponibles:', Object.keys(todayMatches[0]));
-                
-                // Debug de fechas
-                console.log('=== DEBUG FECHAS ===');
-                const now = Date.now();
-                console.log('Fecha actual:', new Date(now).toLocaleString('es-ES'));
-                
-                todayMatches.slice(0, 5).forEach((match, index) => {
-                    const matchDate = new Date(match.date);
-                    const status = getMatchStatus(match);
-                    console.log(`Partido ${index + 1}:`, {
-                        title: match.title,
-                        date: match.date,
-                        formattedDate: matchDate.toLocaleString('es-ES'),
-                        status: status,
-                        isPast: match.date < now,
-                        isFuture: match.date > now
-                    });
-                });
-            }
-            
-            todayMatches.forEach(match => {
-                const matchDiv = document.createElement('div');
-                matchDiv.className = 'match';
-                
-                const status = getMatchStatus(match);
-                const statusClass = status.toLowerCase();
-                
-                // Extraer equipos del título
-                const titleParts = match.title.split(' vs ');
-                const team1 = titleParts[0] || 'Equipo 1';
-                const team2 = titleParts[1] || 'Equipo 2';
-                
-                // Obtener información de equipos si está disponible
-                const homeTeam = match.teams?.home?.name || team1;
-                const awayTeam = match.teams?.away?.name || team2;
-                const homeScore = match.teams?.home?.score || '-';
-                const awayScore = match.teams?.away?.score || '-';
-                
-                // Información de fuentes disponibles
-                const sourcesInfo = match.sources && match.sources.length > 0 
-                    ? `${match.sources.length} fuente${match.sources.length > 1 ? 's' : ''} disponible${match.sources.length > 1 ? 's' : ''}`
-                    : 'Sin fuentes';
+        });
 
-                matchDiv.innerHTML = `
-                    <div class="match-header">
-                        <span class="league">${match.category || 'Deporte'}</span>
-                        <span class="status ${statusClass}">${status}</span>
-                    </div>
-                    <div class="teams">
-                        <div class="team">
-                            <span>${homeTeam}</span>
-                            <span class="score">${homeScore}</span>
-                        </div>
-                        <div class="team">
-                            <span>${awayTeam}</span>
-                            <span class="score">${awayScore}</span>
-                        </div>
-                    </div>
-                    <div style="text-align: center; margin: 10px 0; font-size: 0.8rem; color: #888;">
-                        ${sourcesInfo}
-                    </div>
-                    <button class="watch-btn" onclick="watchMatch('${match.id}')">
-                        Ver Partido
-                    </button>
-                `;
-                
-                container.appendChild(matchDiv);
+        // Navegación con flechas
+        document.querySelectorAll('.arrow').forEach(arrow => {
+            arrow.addEventListener('click', () => {
+                // Lógica de navegación entre slides
+                console.log('Navegando...');
             });
-        }
-        
-        // Determinar estado del partido
-        function getMatchStatus(match) {
-            const now = Date.now();
-            const matchDate = match.date;
-            
-            // Si la fecha es 0, probablemente es un canal/stream especial
-            if (matchDate === 0) {
-                return 'EN VIVO';
-            }
-            
-            // Convertir timestamp a milisegundos si es necesario
-            const matchTime = matchDate > 1000000000000 ? matchDate : matchDate * 1000;
-            
-            // Si la fecha es en el pasado (más de 2 horas), está finalizado
-            if (matchTime < (now - 2 * 60 * 60 * 1000)) {
-                return 'FINALIZADO';
-            }
-            
-            // Si la fecha es en el pasado pero menos de 2 horas, probablemente en vivo
-            if (matchTime < now) {
-                return 'EN VIVO';
-            }
-            
-            // Si la fecha es en el futuro, está próximo
-            return 'PRÓXIMO';
-        }
-        
-        // Ver partido
-        async function watchMatch(matchId) {
-            const match = currentMatches.find(m => m.id === matchId);
-            if (!match) return;
-            
-            const modal = document.getElementById('modal');
-            const modalTitle = document.getElementById('modalTitle');
-            const streamPlayer = document.getElementById('streamPlayer');
-            
-            modalTitle.textContent = match.title;
-            
-            // Agregar encabezado de streams al modal
-            const streamHeader = document.createElement('div');
-            streamHeader.style.cssText = 'text-align: center; margin-bottom: 20px; padding: 20px 20px 0 20px;';
-            streamHeader.innerHTML = `
-                <h3 style="color: #00ff88; margin-bottom: 10px;">📺 Streams Disponibles</h3>
-                <p style="color: #888; font-size: 0.9rem;">Selecciona el stream que prefieras</p>
-            `;
-            
-            // Insertar el encabezado después del header del modal
-            const modalContent = document.querySelector('.modal-content');
-            modalContent.insertBefore(streamHeader, streamPlayer);
-            
-            streamPlayer.innerHTML = '<p>Cargando stream...</p>';
-            modal.style.display = 'block';
-            
-            try {
-                // Mostrar las fuentes de streaming disponibles
-                if (match.sources && match.sources.length > 0) {
-                    let streamsHTML = '';
-                    
-                    let streamCounter = 1;
-                    let allStreams = [];
-                    
-                    // Cargar todos los streams de cada fuente
-                    for (let i = 0; i < match.sources.length; i++) {
-                        const source = match.sources[i];
-                        
-                        try {
-                            const response = await fetch(`https://streamed.pk/api/stream/${source.source}/${source.id}`);
-                            const streams = await response.json();
-                            
-                            if (streams && streams.length > 0) {
-                                // Agregar streams a la lista general
-                                streams.forEach(stream => {
-                                    allStreams.push({
-                                        ...stream,
-                                        source: source.source,
-                                        sourceId: source.id,
-                                        streamNumber: streamCounter++
-                                    });
-                                });
-                            }
-                        } catch (error) {
-                            console.error(`Error loading streams for ${source.source}:`, error);
-                        }
-                    }
-                    
-                    // Ordenar streams por espectadores (más viewers primero)
-                    allStreams.sort((a, b) => (b.viewers || 0) - (a.viewers || 0));
-                    
-                    // Mostrar todos los streams en una lista ordenada
-                    if (allStreams.length > 0) {
-                        streamsHTML += `
-                            <div style="max-height: 500px; overflow-y: auto; border: 1px solid #444; border-radius: 8px; background: #1a1a1a; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
-                        `;
-                        
-                        // Agregar botón de recomendación inteligente como PRIMER elemento
-                        streamsHTML += `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #333; transition: background 0.3s; background: linear-gradient(135deg, #2a1a0a, #1a0f05);" 
-                                 onmouseover="this.style.background='linear-gradient(135deg, #3a2a1a, #2a1f15)'" 
-                                 onmouseout="this.style.background='linear-gradient(135deg, #2a1a0a, #1a0f05)'">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
-                                        <span style="color: #ff6b35; font-weight: bold; font-size: 1.1rem;">#0</span>
-                                        <span style="color: #888; font-size: 0.7rem;">AI</span>
-                                    </div>
-                                    <div>
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                            <span style="color: white; font-weight: 500;">🎯 Recomendación Inteligente</span>
-                                            <span style="background: #ff6b35; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">AUTO</span>
-                                            <span style="font-size: 1.2rem;">🚀</span>
-                                        </div>
-                                        <div style="color: #888; font-size: 0.8rem;">
-                                            🤖 Selección automática del mejor stream
-                                        </div>
-                                    </div>
-                                </div>
-                                <button onclick="openBestStream('${matchId}', '${match.title}')" 
-                                        style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s;"
-                                        onmouseover="this.style.transform='scale(1.05)'" 
-                                        onmouseout="this.style.transform='scale(1)'">
-                                    ▶️ Abrir
-                                </button>
-                            </div>
-                        `;
-                        
-                        allStreams.forEach((stream, index) => {
-                            const language = stream.language || 'N/A';
-                            const quality = stream.hd ? 'HD' : 'SD';
-                            const viewers = stream.viewers || 0;
-                            const isSpanish = language.toLowerCase() === 'spanish';
-                            const isPopular = viewers > 100;
-                            
-                            // Colores según características
-                            let streamColor = '#00ff88';
-                            let badgeColor = '#333';
-                            let badgeText = '';
-                            
-                            if (isSpanish) {
-                                streamColor = '#ff6b35';
-                                badgeColor = '#ff6b35';
-                                badgeText = '🇪🇸';
-                            } else if (isPopular) {
-                                streamColor = '#00ccff';
-                                badgeColor = '#00ccff';
-                                badgeText = '🔥';
-                            }
-                            
-                            streamsHTML += `
-                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #333; transition: background 0.3s;" 
-                                     onmouseover="this.style.background='#2a2a2a'" 
-                                     onmouseout="this.style.background='transparent'">
-                                    <div style="display: flex; align-items: center; gap: 15px;">
-                                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
-                                            <span style="color: ${streamColor}; font-weight: bold; font-size: 1.1rem;">#${index + 1}</span>
-                                            <span style="color: #888; font-size: 0.7rem;">${stream.source.toUpperCase()}</span>
-                                        </div>
-                                        <div>
-                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                                <span style="color: white; font-weight: 500;">${language}</span>
-                                                <span style="background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${quality}</span>
-                                                ${badgeText ? `<span style="font-size: 1.2rem;">${badgeText}</span>` : ''}
-                                            </div>
-                                            <div style="color: #888; font-size: 0.8rem;">
-                                                👥 ${viewers} espectadores
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button onclick="openSpecificStream('${stream.embedUrl}', '${match.title} - ${stream.source} - Stream ${index + 1}')" 
-                                            style="background: ${streamColor}; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s;"
-                                            onmouseover="this.style.transform='scale(1.05)'" 
-                                            onmouseout="this.style.transform='scale(1)'">
-                                        ▶️ Abrir
-                                    </button>
-                                </div>
-                            `;
-                        });
-                        
-                        streamsHTML += `</div>`;
-                    } else {
-                        streamsHTML += `
-                            <div style="text-align: center; padding: 40px; color: #888;">
-                                <div style="font-size: 3rem; margin-bottom: 15px;">📺</div>
-                                <h4>No hay streams disponibles</h4>
-                                <p>Intenta más tarde o verifica la conexión</p>
-                            </div>
-                        `;
-                    }
-                    
-                    streamPlayer.innerHTML = streamsHTML;
-                } else {
-                    // Fallback: intentar endpoint directo
-                    const response = await fetch(`${API_BASE}/stream/${matchId}`);
-                    if (!response.ok) throw new Error(`Error ${response.status}`);
-                    
-                    const streamData = await response.json();
-                    
-                    if (streamData.stream_url) {
-                        streamPlayer.innerHTML = `
-                            <video controls style="width: 100%; max-width: 600px;">
-                                <source src="${streamData.stream_url}" type="video/mp4">
-                                Tu navegador no soporta video.
-                            </video>
-                            <br><br>
-                            <a href="${streamData.stream_url}" target="_blank" style="color: #00ff88;">
-                                Abrir stream en nueva pestaña
-                            </a>
-                        `;
-                    } else {
-                        streamPlayer.innerHTML = '<p>Stream no disponible</p>';
-                    }
-                }
-            } catch (error) {
-                streamPlayer.innerHTML = `<p>Error cargando stream: ${error.message}</p>`;
-            }
-        }
-        
-        // Cerrar modal
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            const streamHeader = modal.querySelector('div[style*="text-align: center"]');
-            if (streamHeader) {
-                streamHeader.remove();
-            }
-            modal.style.display = 'none';
-        }
-        
-        
-        // Función para abrir un stream específico
-        function openSpecificStream(embedUrl, title) {
-            try {
-                console.log('🎯 === openSpecificStream ===');
-                console.log('🎯 embedUrl:', embedUrl);
-                console.log('🎯 title:', title);
-                console.log('🎯 embedUrl válida:', embedUrl && embedUrl !== 'undefined');
-                
-                if (embedUrl && embedUrl !== 'undefined') {
-                    console.log('🎯 Llamando a openStreamOverlay...');
-                    openStreamOverlay(embedUrl, title);
-                } else {
-                    console.error('❌ URL de stream no válida en openSpecificStream');
-                    showError('URL de stream no válida');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error en openSpecificStream:', error);
-                showError('Error al abrir stream específico');
-            }
-        }
+        });
 
-        // Función para abrir el mejor stream (implementación correcta desde streamed-replica.html)
-        async function openBestStream(matchId, matchTitle) {
-            try {
-                console.log('🎯 Abriendo mejor stream para:', matchTitle);
-                
-                const match = currentMatches.find(m => m.id === matchId);
-                console.log('🔍 Match encontrado:', match);
-                console.log('🔍 Sources del match:', match?.sources);
-                
-                if (!match || !match.sources) {
-                    showError('No hay streams disponibles');
-                    return;
-                }
-                
-                let bestStream = null;
-                let maxViewers = 0;
-                let spanishStream = null;
-                let allStreams = [];
-                
-                // Buscar el stream con más espectadores, priorizando español
-                for (const source of match.sources) {
-                    try {
-                        const response = await fetch(`https://streamed.pk/api/stream/${source.source}/${source.id}`);
-                        const streams = await response.json();
-                        
-                        if (streams && streams.length > 0) {
-                            streams.forEach(stream => {
-                                allStreams.push(stream);
-                                
-                                // Priorizar streams en español
-                                const language = (stream.language || '').toLowerCase();
-                                const embedUrl = (stream.embedUrl || '').toLowerCase();
-                                const isSpanish = language === 'spanish' || embedUrl.includes('spanish');
-                                
-                                console.log(`🔍 Stream ${stream.streamNo}: language="${language}", embedUrl="${embedUrl}", isSpanish=${isSpanish}`);
-                                
-                                if (isSpanish && !spanishStream) {
-                                    spanishStream = stream;
-                                    console.log('✅ Encontrado stream en español:', stream);
-                                }
-                                
-                                // Buscar el stream con más espectadores
-                                if (stream.viewers && stream.viewers > maxViewers) {
-                                    maxViewers = stream.viewers;
-                                    bestStream = stream;
-                                }
-                            });
-                        }
-                    } catch (error) {
-                        console.error(`Error loading stream for ${source.source}:`, error);
-                    }
-                }
-                
-                console.log(`📊 Total streams encontrados: ${allStreams.length}`);
-                console.log(`🇪🇸 Stream en español encontrado:`, spanishStream);
-                console.log(`👥 Stream con más espectadores:`, bestStream);
-                
-                // Prioridad: 1) Español, 2) Stream con espectadores, 3) Cualquier stream disponible
-                let finalStream = spanishStream;
-                if (!finalStream && bestStream && bestStream.viewers > 0) {
-                    finalStream = bestStream;
-                }
-                if (!finalStream) {
-                    // Usar cualquier stream disponible (el primero que encuentre)
-                    finalStream = allStreams[0] || bestStream;
-                }
-                
-                if (finalStream && finalStream.embedUrl) {
-                    console.log('✅ === Abriendo mejor stream ===');
-                    console.log('✅ finalStream.embedUrl:', finalStream.embedUrl);
-                    console.log('✅ matchTitle:', matchTitle);
-                    console.log('✅ Llamando a openStreamOverlay...');
-                    openStreamOverlay(finalStream.embedUrl, matchTitle);
-                } else {
-                    console.error('❌ No se encontró un stream válido en openBestStream');
-                    console.log('❌ finalStream:', finalStream);
-                    showError('No se encontró un stream válido');
-                }
-                
-            } catch (error) {
-                console.error('Error opening best stream:', error);
-                showError('Error al abrir stream');
-            }
-        }
-
-        // Función para abrir stream en overlay
-        function openStreamOverlay(url, title = 'Stream') {
-            console.log('🚀 === INICIANDO openStreamOverlay ===');
-            console.log('📺 URL del stream:', url);
-            console.log('📝 Título:', title);
-            
-            if (!url || url === 'undefined') {
-                console.error('❌ URL de stream no válida:', url);
-                showError('URL de stream no válida');
-                return;
-            }
-            
-            const overlay = document.getElementById('streamOverlay');
-            const streamIframe = document.getElementById('streamIframe');
-            const adContainer = document.getElementById('adContainer');
-            const adIframe = document.getElementById('adIframe');
-            const closeAdBtn = document.getElementById('closeAdBtn');
-            const closeStreamBtn = document.getElementById('closeStreamBtn');
-            const adTimer = document.getElementById('adTimer');
-            const countdown = document.getElementById('countdown');
-            
-            console.log('🔍 Elementos encontrados:');
-            console.log('  - overlay:', !!overlay);
-            console.log('  - streamIframe:', !!streamIframe);
-            console.log('  - adContainer:', !!adContainer);
-            console.log('  - adIframe:', !!adIframe);
-            console.log('  - closeAdBtn:', !!closeAdBtn);
-            console.log('  - closeStreamBtn:', !!closeStreamBtn);
-            console.log('  - adTimer:', !!adTimer);
-            console.log('  - countdown:', !!countdown);
-            
-            if (!overlay || !streamIframe) {
-                console.error('❌ Elementos críticos no encontrados');
-                return;
-            }
-            
-            // Limpiar cualquier timer anterior
-            if (window.adTimer) {
-                console.log('🧹 Limpiando timer anterior');
-                clearInterval(window.adTimer);
-            }
-            
-            console.log('🔄 Reseteando elementos al estado inicial...');
-            
-            // Resetear todos los elementos al estado inicial
-            adContainer.style.display = 'block';
-            adTimer.style.display = 'block';
-            closeAdBtn.style.display = 'none';
-            closeStreamBtn.style.display = 'none';
-            streamIframe.style.display = 'none';
-            streamIframe.src = '';
-            
-            console.log('✅ Elementos reseteados');
-            
-            // Resetear el mensaje del timer
-            adTimer.innerHTML = 'Cargando publicidad... <span id="countdown">30</span>s';
-            console.log('📝 Timer HTML regenerado');
-            
-            // Mostrar el overlay
-            overlay.style.display = 'block';
-            console.log('👁️ Overlay mostrado');
-            
-            // Bloquear scroll del body
-            document.body.style.overflow = 'hidden';
-            console.log('🔒 Scroll bloqueado');
-            
-            // Cargar publicidad de Adsterra
-            const adUrl = 'https://www.revenuecpmgate.com/mr0r2hndg?key=78bccdf65220327356e33416cb3393eb';
-            console.log('📢 Cargando publicidad:', adUrl);
-            adIframe.src = adUrl;
-            
-            // Event listeners para el iframe de publicidad
-            adIframe.onload = function() {
-                console.log('✅ Publicidad cargada exitosamente');
-            };
-            
-            adIframe.onerror = function() {
-                console.error('❌ Error cargando publicidad');
-            };
-            
-            // Contador de 30 segundos
-            let seconds = 30;
-            const countdownElement = document.getElementById('countdown');
-            console.log('⏱️ Iniciando contador de 30 segundos');
-            console.log('🔢 Elemento countdown encontrado:', !!countdownElement);
-            
-            if (!countdownElement) {
-                console.error('❌ Elemento countdown no encontrado después de regenerar HTML');
-                return;
-            }
-            
-            countdownElement.textContent = seconds;
-            console.log('🔢 Contador inicializado en:', seconds);
-            
-            window.adTimer = setInterval(() => {
-                seconds--;
-                console.log('⏰ Contador:', seconds);
-                countdownElement.textContent = seconds;
-                
-                if (seconds <= 0) {
-                    console.log('⏰ Contador terminado, limpiando timer');
-                    clearInterval(window.adTimer);
-                    window.adTimer = null;
-                    
-                    // Cambiar el mensaje y mostrar botón cerrar publicidad
-                    adTimer.innerHTML = 'Publicidad lista - Puedes cerrar cuando quieras';
-                    closeAdBtn.style.display = 'block';
-                    console.log('✅ Botón "Cerrar Publicidad" mostrado');
-                    
-                    // Guardar la URL del stream para cuando el usuario cierre la publicidad
-                    window.pendingStreamUrl = url;
-                    console.log('💾 URL del stream guardada:', url);
-                    
-                    console.log('🎬 Publicidad lista, esperando que el usuario cierre');
-                }
-            }, 1000);
-            
-            console.log('🚀 === openStreamOverlay completado ===');
-        }
-
-        // Función para cerrar publicidad y mostrar stream
-        function closeAdAndShowStream() {
-            console.log('🎬 === closeAdAndShowStream ===');
-            
-            const streamIframe = document.getElementById('streamIframe');
-            const adContainer = document.getElementById('adContainer');
-            const adIframe = document.getElementById('adIframe');
-            const closeAdBtn = document.getElementById('closeAdBtn');
-            const closeStreamBtn = document.getElementById('closeStreamBtn');
-            const adTimer = document.getElementById('adTimer');
-            
-            console.log('🔍 Elementos encontrados en closeAdAndShowStream:');
-            console.log('  - streamIframe:', !!streamIframe);
-            console.log('  - adContainer:', !!adContainer);
-            console.log('  - adIframe:', !!adIframe);
-            console.log('  - closeAdBtn:', !!closeAdBtn);
-            console.log('  - closeStreamBtn:', !!closeStreamBtn);
-            console.log('  - adTimer:', !!adTimer);
-            
-            // Ocultar publicidad y mostrar stream
-            adContainer.style.display = 'none';
-            adTimer.style.display = 'none';
-            closeAdBtn.style.display = 'none';
-            closeStreamBtn.style.display = 'block';
-            streamIframe.style.display = 'block';
-            
-            console.log('🔄 Elementos ocultados/mostrados');
-            
-            // Cargar el stream real
-            if (window.pendingStreamUrl) {
-                console.log('📺 Cargando stream real:', window.pendingStreamUrl);
-                streamIframe.src = window.pendingStreamUrl;
-                window.pendingStreamUrl = null;
-                console.log('✅ Stream cargado, URL pendiente limpiada');
-            } else {
-                console.error('❌ No hay URL de stream pendiente');
-            }
-            
-            console.log('🎬 Publicidad cerrada, mostrando stream');
-        }
-
-        // Función para cerrar stream overlay
-        function closeStreamOverlay() {
-            const overlay = document.getElementById('streamOverlay');
-            const streamIframe = document.getElementById('streamIframe');
-            const adIframe = document.getElementById('adIframe');
-            const adContainer = document.getElementById('adContainer');
-            const closeAdBtn = document.getElementById('closeAdBtn');
-            const closeStreamBtn = document.getElementById('closeStreamBtn');
-            const adTimer = document.getElementById('adTimer');
-            
-            // Limpiar timer si existe
-            if (window.adTimer) {
-                clearInterval(window.adTimer);
-                window.adTimer = null;
-            }
-            
-            // Ocultar el overlay
-            overlay.style.display = 'none';
-            
-            // Limpiar los iframes
-            streamIframe.src = '';
-            adIframe.src = '';
-            
-            // Resetear elementos de publicidad
-            adContainer.style.display = 'none';
-            adTimer.style.display = 'none';
-            closeAdBtn.style.display = 'none';
-            closeStreamBtn.style.display = 'none';
-            streamIframe.style.display = 'none';
-            
-            // Limpiar URL pendiente
-            window.pendingStreamUrl = null;
-            
-            // Restaurar scroll del body
-            document.body.style.overflow = 'auto';
-            
-            console.log('🔒 Cerrando stream overlay completamente');
-        }
-        
-        // Poblar filtros
-        function populateFilters(matches, sports = []) {
-            const sportFilter = document.getElementById('sportFilter');
-            const leagueFilter = document.getElementById('leagueFilter');
-            
-            // Limpiar filtros
-            sportFilter.innerHTML = '<option value="">Todas las categorías</option>';
-            leagueFilter.innerHTML = '<option value="">Todas las categorías</option>';
-            
-            // Poblar deportes desde la API
-            if (sports.length > 0) {
-                sports.forEach(sport => {
-                    const option = document.createElement('option');
-                    option.value = sport.id;
-                    option.textContent = sport.name;
-                    sportFilter.appendChild(option);
-                });
-            } else {
-                // Fallback: obtener categorías únicas de los partidos
-                const uniqueCategories = [...new Set(matches.map(m => m.category).filter(Boolean))];
-                uniqueCategories.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category;
-                    option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                    sportFilter.appendChild(option);
-                });
-            }
-            
-            // Obtener categorías únicas para el filtro de liga (usando category como liga)
-            const categories = [...new Set(matches.map(m => m.category).filter(Boolean))];
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                leagueFilter.appendChild(option);
+        // Efectos de hover en navegación
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
             });
-        }
-        
-        // Filtrar por deporte
-        async function filterBySport() {
-            const sportId = document.getElementById('sportFilter').value;
-            if (!sportId) {
-                displayMatches(currentMatches);
-                return;
-            }
+        });
+
+        // Video Overlay Functionality
+        const openVideoBtn = document.getElementById('openVideoBtn');
+        const videoOverlay = document.getElementById('videoOverlay');
+        const closeVideoBtn = document.getElementById('closeVideoBtn');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        // URL del stream M3U8
+        const streamUrl = 'https://live20.bozztv.com/giatv/giatv-villahermosalive/villahermosalive/chunks.m3u8';
+
+        // Control de inactividad para ocultar controles
+        let inactivityTimer;
+        let isVideoOpen = false;
+
+        // Ad Banner functionality
+        const adBanner = document.getElementById('adBanner');
+        const countdownNumber = document.getElementById('countdownNumber');
+        let adCountdownTimer;
+        let adCountdownInterval;
+
+        // Event countdown functionality
+        const eventCountdown = document.getElementById('eventCountdown');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+        let eventCountdownInterval;
+        let visualCountdownInterval;
+
+        // Abrir overlay de video
+        openVideoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openVideoOverlay();
+        });
+
+        // Dropdown menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggle = document.querySelector('.dropdown-toggle');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
             
-            // Si es un ID numérico, hacer llamada a la API
-            if (!isNaN(sportId)) {
-                showLoading(true);
-                try {
-                    const response = await fetch(`${API_BASE}/matches/${sportId}`);
-                    if (!response.ok) throw new Error(`Error ${response.status}`);
-                    
-                    const data = await response.json();
-                    currentMatches = data;
-                    displayMatches(data);
-                } catch (error) {
-                    showError('Error al filtrar por deporte: ' + error.message);
-                } finally {
-                    showLoading(false);
-                }
-            } else {
-                // Si es una categoría, filtrar localmente
-                const filtered = currentMatches.filter(match => match.category === sportId);
-                displayMatches(filtered);
-            }
-        }
-        
-        // Filtrar por liga
-        function filterByLeague() {
-            const league = document.getElementById('leagueFilter').value;
-            if (!league) {
-                displayMatches(currentMatches);
-                return;
-            }
-            
-            const filtered = currentMatches.filter(match => match.category === league);
-            displayMatches(filtered);
-        }
-        
-        // Mostrar solo partidos de fútbol
-        function showFootballOnly() {
-            if (currentMatches.length === 0) {
-                showError('Primero carga los partidos');
-                return;
-            }
-            
-            const footballMatches = currentMatches.filter(match => match.category === 'football');
-            displayMatches(footballMatches);
-        }
-        
-        // Cargar todos los deportes disponibles
-        async function loadAllSports() {
-            console.log('=== CARGANDO TODOS LOS DEPORTES ===');
-            showLoading(true);
-            hideError();
-            
-            try {
-                const sportsResponse = await fetch(`${API_BASE}/sports`);
-                if (!sportsResponse.ok) throw new Error(`Error ${sportsResponse.status}`);
-                
-                const sports = await sportsResponse.json();
-                console.log('Todos los deportes:', sports);
-                
-                // Mostrar información de deportes
-                let sportsInfo = 'Deportes disponibles:\n';
-                sports.forEach((sport, index) => {
-                    sportsInfo += `${index + 1}. ${sport.name} (ID: ${sport.id})\n`;
+            if (dropdownToggle && dropdownMenu) {
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdownMenu.classList.toggle('show');
                 });
                 
-                showError(`✅ ${sports.length} deportes encontrados. Revisa la consola para detalles.`);
-                
-                // Cargar partidos de cada deporte para ver cuáles tienen partidos
-                for (const sport of sports) {
-                    try {
-                        const response = await fetch(`${API_BASE}/matches/${sport.id}`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            console.log(`${sport.name}: ${data.length} partidos`);
-                        }
-                    } catch (error) {
-                        console.log(`${sport.name}: Error cargando partidos`);
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.nav-dropdown')) {
+                        dropdownMenu.classList.remove('show');
                     }
-                }
-                
-            } catch (error) {
-                console.error('Error cargando deportes:', error);
-                showError('Error al cargar deportes: ' + error.message);
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Probar la API
-        async function testAPI() {
-            console.log('=== PROBANDO API ===');
-            showLoading(true);
-            hideError();
-            
-            try {
-                // Probar endpoint de deportes
-                console.log('Probando /sports...');
-                const sportsResponse = await fetch(`${API_BASE}/sports`);
-                console.log('Sports response:', sportsResponse.status, sportsResponse.ok);
-                
-                if (sportsResponse.ok) {
-                    const sports = await sportsResponse.json();
-                    console.log('Sports data:', sports);
-                    showError(`✅ Deportes OK: ${sports.length} deportes encontrados`);
-                } else {
-                    showError(`❌ Error deportes: ${sportsResponse.status}`);
-                }
-                
-                // Probar endpoint de partidos en vivo
-                console.log('Probando /matches/live...');
-                const liveResponse = await fetch(`${API_BASE}/matches/live`);
-                console.log('Live response:', liveResponse.status, liveResponse.ok);
-                
-                if (liveResponse.ok) {
-                    const liveData = await liveResponse.json();
-                    console.log('Live data:', liveData);
-                    showError(`✅ Partidos en vivo OK: ${liveData.length} partidos encontrados`);
-                } else {
-                    showError(`❌ Error partidos en vivo: ${liveResponse.status}`);
-                }
-                
-            } catch (error) {
-                console.error('Error en prueba de API:', error);
-                showError(`❌ Error de conexión: ${error.message}`);
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Mostrar loading
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-        }
-        
-        // Mostrar error
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-        
-        // Ocultar error
-        function hideError() {
-            document.getElementById('error').style.display = 'none';
-        }
-        
-        // Cerrar modal al hacer clic fuera
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-        
-        // Event listener para cerrar stream overlay con Escape
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const overlay = document.getElementById('streamOverlay');
-                if (overlay && overlay.style.display === 'block') {
-                    closeStreamOverlay();
-                }
+                });
             }
         });
-        
-        // Buscar por equipo
-        function searchByTeam() {
-            const searchTerm = document.getElementById('teamSearch').value.toLowerCase().trim();
-            
-            if (!searchTerm) {
-                // Si no hay término de búsqueda, mostrar todos los partidos del día
-                displayMatches(currentMatches);
-                return;
+
+        // Cerrar overlay de video
+        closeVideoBtn.addEventListener('click', () => {
+            closeVideoOverlay();
+        });
+
+        // Cerrar al hacer clic fuera del video
+        videoOverlay.addEventListener('click', (e) => {
+            if (e.target === videoOverlay) {
+                closeVideoOverlay();
             }
+        });
+
+        // Cerrar con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && videoOverlay.style.display === 'flex') {
+                closeVideoOverlay();
+            }
+        });
+
+
+        function closeVideoOverlay() {
+            videoOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            videoPlayer.pause();
+            videoPlayer.src = '';
+            isVideoOpen = false;
+            clearTimeout(inactivityTimer);
+            removeInactivityListeners();
+            hideAdBanner();
+            clearInterval(eventCountdownInterval);
+            clearInterval(visualCountdownInterval);
+            eventCountdown.style.display = 'none';
+            videoPlayer.style.display = 'block';
+        }
+
+        // Función para iniciar el timer de inactividad
+        function startInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            videoOverlay.classList.remove('video-controls-hidden');
             
-            console.log('Buscando equipo:', searchTerm);
+            inactivityTimer = setTimeout(() => {
+                if (isVideoOpen) {
+                    videoOverlay.classList.add('video-controls-hidden');
+                }
+            }, 3000); // 3 segundos
+        }
+
+        // Función para mostrar controles al detectar actividad
+        function showControls() {
+            if (isVideoOpen) {
+                videoOverlay.classList.remove('video-controls-hidden');
+                startInactivityTimer();
+            }
+        }
+
+        // Configurar listeners de actividad
+        function setupInactivityListeners() {
+            videoOverlay.addEventListener('mousemove', showControls);
+            videoOverlay.addEventListener('mousedown', showControls);
+            videoOverlay.addEventListener('touchstart', showControls);
+            document.addEventListener('keydown', showControls);
+        }
+
+        // Remover listeners de actividad
+        function removeInactivityListeners() {
+            videoOverlay.removeEventListener('mousemove', showControls);
+            videoOverlay.removeEventListener('mousedown', showControls);
+            videoOverlay.removeEventListener('touchstart', showControls);
+            document.removeEventListener('keydown', showControls);
+        }
+
+        // Ad Banner functionality
+        function showAdBanner() {
+            adBanner.style.display = 'block';
+            startAdCountdown();
+        }
+
+        function hideAdBanner() {
+            adBanner.style.display = 'none';
+            clearInterval(adCountdownInterval);
+            clearTimeout(adCountdownTimer);
+        }
+
+        function startAdCountdown() {
+            let countdown = 15;
+            countdownNumber.textContent = countdown;
             
-            // Filtrar partidos que contengan el término de búsqueda en el título o equipos
-            const filteredMatches = currentMatches.filter(match => {
-                if (!match.title) return false;
+            adCountdownInterval = setInterval(() => {
+                countdown--;
+                countdownNumber.textContent = countdown;
                 
-                const title = match.title.toLowerCase();
-                const homeTeam = match.teams?.home?.name?.toLowerCase() || '';
-                const awayTeam = match.teams?.away?.name?.toLowerCase() || '';
+                if (countdown <= 0) {
+                    hideAdBanner();
+                }
+            }, 1000);
+        }
+
+        // Stream verification and countdown functions
+        function checkStreamStatus() {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.muted = true;
+                video.preload = 'metadata';
                 
-                // Buscar en título, equipos home y away
-                return title.includes(searchTerm) || 
-                       homeTeam.includes(searchTerm) || 
-                       awayTeam.includes(searchTerm);
+                const timeout = setTimeout(() => {
+                    resolve(false); // Stream no disponible
+                }, 5000); // 5 segundos timeout
+                
+                video.addEventListener('loadedmetadata', () => {
+                    clearTimeout(timeout);
+                    resolve(true); // Stream disponible
+                });
+                
+                video.addEventListener('error', () => {
+                    clearTimeout(timeout);
+                    resolve(false); // Stream no disponible
+                });
+                
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(streamUrl);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.ERROR, () => {
+                        clearTimeout(timeout);
+                        resolve(false);
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = streamUrl;
+                } else {
+                    clearTimeout(timeout);
+                    resolve(false);
+                }
             });
+        }
+
+        function getEventTime() {
+            const now = new Date();
+            const eventTime = new Date();
+            eventTime.setHours(19, 30, 0, 0); // 7:30 PM hoy
             
-            console.log(`Encontrados ${filteredMatches.length} partidos para "${searchTerm}"`);
-            
-            // Mostrar resultados
-            if (filteredMatches.length === 0) {
-                const container = document.getElementById('matches');
-                container.innerHTML = `<div class="error">No se encontraron partidos para "${searchTerm}"</div>`;
-            } else {
-                displayMatches(filteredMatches);
+            // Si ya pasó la hora de hoy, programar para mañana
+            if (now > eventTime) {
+                eventTime.setDate(eventTime.getDate() + 1);
             }
+            
+            return eventTime;
         }
-        
-        // Limpiar búsqueda
-        function clearSearch() {
-            document.getElementById('teamSearch').value = '';
-            displayMatches(currentMatches);
+
+        async function updateEventCountdown() {
+            // Primero verificar si el stream está disponible
+            const streamAvailable = await checkStreamStatus();
+            
+            if (streamAvailable) {
+                // Stream está activo, mostrar directamente
+                eventCountdown.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                return true; // Stream is active
+            }
+            
+            // Stream no disponible, verificar horario del evento
+            const now = new Date();
+            const eventTime = getEventTime();
+            const timeLeft = eventTime - now;
+            
+            // Calcular tiempo restante
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            countdownDisplay.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            return false; // Stream not active
         }
-        
-        // Cargar partidos al iniciar
-        window.onload = function() {
-            loadMatches();
+
+        function startEventCountdown() {
+            // Contador visual que se actualiza cada segundo
+            visualCountdownInterval = setInterval(() => {
+                updateCountdownDisplay();
+            }, 1000);
+            
+            // Verificación del stream cada 10 segundos
+            eventCountdownInterval = setInterval(async () => {
+                const streamActive = await checkStreamStatus();
+                if (streamActive) {
+                    // Si el stream está activo, iniciar reproducción
+                    clearInterval(eventCountdownInterval);
+                    clearInterval(visualCountdownInterval);
+                    startStream();
+                }
+            }, 10000);
+            
+            // Verificación inicial inmediata
+            checkStreamStatus().then(streamActive => {
+                if (streamActive) {
+                    clearInterval(eventCountdownInterval);
+                    clearInterval(visualCountdownInterval);
+                    startStream();
+                } else {
+                    // Iniciar actualización visual inmediatamente
+                    updateCountdownDisplay();
+                }
+            });
+        }
+
+        function updateCountdownDisplay() {
+            const now = new Date();
+            const eventTime = getEventTime();
+            const timeLeft = eventTime - now;
+            
+            // Calcular tiempo restante
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            countdownDisplay.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startStream() {
+            eventCountdown.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            
+            // Configurar HLS
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoPlayer.play();
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                // Safari nativo
+                videoPlayer.src = streamUrl;
+                videoPlayer.addEventListener('loadedmetadata', function() {
+                    videoPlayer.play();
+                });
+            }
+            
+            // Mostrar banner de publicidad después de 3 segundos
+            setTimeout(() => {
+                showAdBanner();
+            }, 3000);
+        }
+
+        // Mostrar overlay cuando se abre el video
+        async function openVideoOverlay() {
+            videoOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            isVideoOpen = true;
+            
+            // Verificar si el stream está disponible
+            const streamActive = await updateEventCountdown();
+            
+            if (streamActive) {
+                // Stream disponible, mostrar directamente
+                startStream();
+            } else {
+                // Stream no disponible, mostrar contador
+                videoPlayer.style.display = 'none';
+                eventCountdown.style.display = 'block';
+                startEventCountdown();
+            }
+
+            // Iniciar timer de inactividad
+            startInactivityTimer();
+            setupInactivityListeners();
         }
     </script>
 </body>
