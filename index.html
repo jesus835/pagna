@@ -984,10 +984,41 @@
 
         /* Video overlay mobile optimizations */
         @media (max-width: 768px) {
+            .video-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 1);
+                z-index: 99999;
+                display: none;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .video-container {
+                width: 100vw;
+                height: 100vh;
+                background: #000;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .video-player {
+                width: 100vw;
+                height: 100vh;
+                object-fit: cover;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
             .video-info {
                 bottom: 15%;
                 left: 15px;
                 padding: 10px 15px;
+                z-index: 100001;
             }
 
             .video-title {
@@ -1004,11 +1035,20 @@
                 width: 40px;
                 height: 40px;
                 font-size: 20px;
+                z-index: 100001;
+                background: rgba(0, 0, 0, 0.8);
+                border: 2px solid #fff;
+                border-radius: 50%;
             }
 
             .ad-banner {
                 padding: 10px;
                 min-height: 60px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100002;
             }
 
             .ad-counter {
@@ -1017,11 +1057,14 @@
                 padding: 6px 10px;
                 font-size: 12px;
                 min-width: 50px;
+                z-index: 100003;
             }
 
             .event-countdown {
                 padding: 25px;
                 margin: 0 15px;
+                z-index: 100001;
+                background: rgba(0, 0, 0, 0.9);
             }
 
             .countdown-title {
