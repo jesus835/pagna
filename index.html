@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Guatemala vs Panamá - Partido EN VIVO</title>
     <style>
         @font-face {
@@ -582,6 +585,7 @@
         }
 
         .video-controls-hidden .close-button,
+        .video-controls-hidden .fullscreen-button,
         .video-controls-hidden .video-info {
             opacity: 0;
             pointer-events: none;
@@ -1502,6 +1506,15 @@
                 } else if (videoOverlay.msRequestFullscreen) {
                     videoOverlay.msRequestFullscreen();
                 }
+                
+                // Forzar rotación a landscape en móviles
+                if (window.innerWidth <= 768 && screen.orientation) {
+                    try {
+                        screen.orientation.lock('landscape');
+                    } catch (err) {
+                        console.log('Screen orientation lock not supported');
+                    }
+                }
             } else {
                 // Salir de pantalla completa
                 if (document.exitFullscreen) {
@@ -1512,6 +1525,11 @@
                     document.mozCancelFullScreen();
                 } else if (document.msExitFullscreen) {
                     document.msExitFullscreen();
+                }
+                
+                // Desbloquear orientación al salir
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
                 }
             }
         }
