@@ -1550,6 +1550,24 @@
 
 
         function closeVideoOverlay() {
+            // Salir de pantalla completa si está activa
+            if (document.fullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+            
+            // Desbloquear orientación
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+            
             videoOverlay.style.display = 'none';
             document.body.style.overflow = 'auto';
             videoPlayer.pause();
@@ -1780,6 +1798,32 @@
             document.body.style.overflow = 'hidden';
             isVideoOpen = true;
             
+            // Auto pantalla completa y orientación en móviles
+            if (window.innerWidth <= 768) {
+                try {
+                    // Entrar a pantalla completa automáticamente
+                    if (videoOverlay.requestFullscreen) {
+                        await videoOverlay.requestFullscreen();
+                    } else if (videoOverlay.webkitRequestFullscreen) {
+                        await videoOverlay.webkitRequestFullscreen();
+                    } else if (videoOverlay.mozRequestFullScreen) {
+                        await videoOverlay.mozRequestFullScreen();
+                    } else if (videoOverlay.msRequestFullscreen) {
+                        await videoOverlay.msRequestFullscreen();
+                    }
+                    
+                    // Forzar rotación a landscape
+                    if (screen.orientation) {
+                        try {
+                            await screen.orientation.lock('landscape');
+                        } catch (err) {
+                            console.log('Screen orientation lock not supported');
+                        }
+                    }
+                } catch (err) {
+                    console.log('Auto fullscreen not available:', err);
+                }
+            }
             
             // Verificar si el stream está disponible
             const streamActive = await updateEventCountdown();
