@@ -534,6 +534,33 @@
             opacity: 1;
         }
 
+        .fullscreen-button {
+            position: absolute;
+            top: 20px;
+            right: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            transition: all 0.3s ease;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .fullscreen-button:hover,
+        .close-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
         .close-button:hover {
             background: rgba(0, 0, 0, 0.9);
             color: #00BFFF;
@@ -1026,15 +1053,33 @@
             .video-player::-webkit-media-controls-panel {
                 display: flex !important;
                 opacity: 1 !important;
-                background: rgba(0, 0, 0, 0.8) !important;
+                background: rgba(0, 0, 0, 0.9) !important;
+                height: 60px !important;
+                padding: 10px !important;
             }
             
             .video-player::-webkit-media-controls-play-button,
             .video-player::-webkit-media-controls-fullscreen-button,
+            .video-player::-webkit-media-controls-current-time-display,
+            .video-player::-webkit-media-controls-time-remaining-display,
             .video-player::-webkit-media-controls-volume-slider,
             .video-player::-webkit-media-controls-timeline {
-                display: block !important;
+                display: flex !important;
                 opacity: 1 !important;
+                -webkit-appearance: none !important;
+                width: auto !important;
+                height: 40px !important;
+                margin: 5px !important;
+            }
+            
+            .video-player::-webkit-media-controls-timeline {
+                flex: 1 !important;
+                height: 20px !important;
+                background: rgba(255, 255, 255, 0.3) !important;
+            }
+            
+            .video-player::-webkit-media-controls-volume-slider {
+                width: 80px !important;
             }
 
             .video-info {
@@ -1058,6 +1103,18 @@
                 width: 40px;
                 height: 40px;
                 font-size: 20px;
+                z-index: 100001;
+                background: rgba(0, 0, 0, 0.8);
+                border: 2px solid #fff;
+                border-radius: 50%;
+            }
+
+            .fullscreen-button {
+                top: 15px;
+                right: 65px;
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
                 z-index: 100001;
                 background: rgba(0, 0, 0, 0.8);
                 border: 2px solid #fff;
@@ -1309,7 +1366,8 @@
     <div class="video-overlay" id="videoOverlay">
         <div class="video-container">
             <button class="close-button" id="closeVideoBtn">✕</button>
-            <video class="video-player" id="videoPlayer" controls autoplay>
+            <button class="fullscreen-button" id="fullscreenBtn">⛶</button>
+            <video class="video-player" id="videoPlayer" controls autoplay playsinline webkit-playsinline controlslist="nodownload">
                 <source src="" type="application/x-mpegURL">
                 Tu navegador no soporta el elemento video.
             </video>
@@ -1424,6 +1482,39 @@
         closeVideoBtn.addEventListener('click', () => {
             closeVideoOverlay();
         });
+
+        // Botón de pantalla completa
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        fullscreenBtn.addEventListener('click', () => {
+            toggleFullscreen();
+        });
+
+        // Función para alternar pantalla completa
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                // Entrar a pantalla completa
+                if (videoOverlay.requestFullscreen) {
+                    videoOverlay.requestFullscreen();
+                } else if (videoOverlay.webkitRequestFullscreen) {
+                    videoOverlay.webkitRequestFullscreen();
+                } else if (videoOverlay.mozRequestFullScreen) {
+                    videoOverlay.mozRequestFullScreen();
+                } else if (videoOverlay.msRequestFullscreen) {
+                    videoOverlay.msRequestFullscreen();
+                }
+            } else {
+                // Salir de pantalla completa
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
 
         // Cerrar al hacer clic fuera del video
         videoOverlay.addEventListener('click', (e) => {
